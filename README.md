@@ -23,12 +23,14 @@ Patients with asthma.
 ## Core Workflow
 
 1. Retrieve environmental data from an external API.
-2. Retrieve simulated patient clinical information.
-3. Represent relevant clinical information using FHIR resources.
-4. Apply evidence-informed (prev: predefined) risk rules.
-5. Calculate a risk category.
-6. Display the factors contributing to the result.
-7. Display predefined risk-management guidance.
+2. Collect RR, OR, Percentage for every field in relation to asthma exacerbations.
+3. Collect asthma related patient clinical information.
+4. Standardize acquired input into an internal data structure (JSON).
+5. Support FHIR based imports and map them to the internal DS.
+6. Apply evidence-informed risk rules.
+7. Calculate a risk category.
+8. Display the factors contributing to the result.
+9. Display predefined risk-management guidance.
 
 ## Initial FHIR Resources
 
@@ -64,3 +66,4 @@ The first version will:
 - World wide pollen data
 - machine-learning risk prediction
 - personalized risk models
+- Add a relational DB
