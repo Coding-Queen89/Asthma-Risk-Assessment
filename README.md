@@ -22,9 +22,9 @@ Patients with asthma.
 
 ## Core Workflow
 
-1. Retrieve environmental data from an external API.
+1. Collect asthma related patient clinical information.
 2. Collect RR, OR, Percentage for every field in relation to asthma exacerbations.
-3. Collect asthma related patient clinical information.
+3. Retrieve environmental data from an external API.
 4. Standardize acquired input into an internal data structure (JSON).
 5. Support FHIR based imports and map them to the internal DS.
 6. Apply evidence-informed risk rules.
