@@ -1,0 +1,83 @@
+- id: pm25
+  category: environmental
+  datatype: float
+  time_lag: 24 hours
+  effect_type: OR
+  effect_value: 1.54
+  lookback_window: 0-3 days
+  evidence: "https://pmc.ncbi.nlm.nih.gov/articles/PMC12057204/"
+  notes: "daily mean"
+  scale:
+  unit: "µg/m³"
+
+- id: Nitrogen Dioxide
+  category: environmental
+  datatype: float
+  time_lag: 24 hours
+  effect_type: RR
+  effect_value: 1.014
+  lookback_window: 24 hours
+  evidence: "https://airscan.org/insights/iaq-testing/new-who-air-quality-guidelines-2021/"
+  notes: "Baseline Values"
+  scale:
+  unit: "µg/m³ richtig?"
+
+- id: Ozone
+  category: environmental
+  datatype: float
+  time_lag: 24 hours
+  effect_type: RR
+  effect_value: 1.008
+  lookback_window: 8 or 24 hours
+  evidence: "https://www.phfscience.nz/media/uundbpqv/esr-environmental-health-report-health-effects-short-term-exposure-no2-o3-sp2-asthma.pdf"
+  notes: "Baseline Values"
+  scale:
+  unit: "unknown?"
+
+- id: Birch Pollen
+  category: environmental
+  datatype: float
+  time_lag: 72 hours
+  effect_type: OR
+  effect_value: 1.19
+  lookback_window: o-2 days
+  evidence: "https://www.ajmc.com/view/outdoor-pollen-exposure-may-worsen-asthma-attacks"
+  notes: "Limitation: Individuals < 18"
+  scale:
+  unit: "unknown?"
+
+- id: Grass Pollen
+  category: environmental
+  datatype: float
+  time_lag: 72 hours
+  effect_type: IRR
+  effect_value: 1.46
+  lookback_window: 2-5 days
+  evidence: "https://pmc.ncbi.nlm.nih.gov/articles/PMC5643363/"
+  notes:
+  scale:
+  unit: "unknown?"
+
+- id: Ragweed Pollen
+  category: environmental
+  datatype: float
+  time_lag: 72 hours
+  effect_type: IRR
+  effect_value: 1.28
+  lookback_window: Within February
+  evidence: "https://www.medpagetoday.com/resource-centers/allergic-asthma-recent-developments/asthma-exacerbations-impact-pollen/4344"
+  notes:
+  scale:
+  unit: "unknown?"
+
+- id: Relative Humidity
+  category: environmental
+  datatype: float
+  time_lag: 24 hours
+  effect_type: OR
+  effect_value: 1.28
+  lookback_window: 1 day
+  evidence: "https://www.sciencedirect.com/science/article/pii/S1939455126002772"
+  notes: "Limitation: RH and PM2.5"
+  scale:
+  unit: "unknown?"

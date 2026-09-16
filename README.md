@@ -12,9 +12,10 @@ separately from interoperable healthcare records.
 ## Objective
 
 Develop a learning prototype that combines environmental data
-with patient information represented using HL7 FHIR and applies
-transparent rule-based logic to generate an environmental asthma
-risk level.
+with patient information, applies evidence and rule-based
+logic to generate the next possible asthma exacerbation score and
+represent environmental data, patient information along with the
+results using HL7 FHIR.
 
 ## Target Users
 
@@ -25,12 +26,11 @@ Patients with asthma.
 1. Collect asthma related patient clinical information.
 2. Collect RR, OR, Percentage for every field in relation to asthma exacerbations.
 3. Retrieve environmental data from an external API.
-4. Standardize acquired input into an internal data structure (JSON).
-5. Support FHIR based imports and map them to the internal DS.
-6. Apply evidence-informed risk rules.
-7. Calculate a risk category.
-8. Display the factors contributing to the result.
-9. Display predefined risk-management guidance.
+4. Standardize acquired input into a risk Data Transfer Object.\
+5. Apply evidence-informed risk rules.
+6. Calculate a risk category.
+7. Display the factors contributing to the result.
+8. Display predefined risk-management guidance.
 
 ## Initial FHIR Resources
 
@@ -67,3 +67,4 @@ The first version will:
 - machine-learning risk prediction
 - personalized risk models
 - Add a relational DB
+- Support FHIR based imports [previously step 5]

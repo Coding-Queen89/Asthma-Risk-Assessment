@@ -2,3 +2,8 @@ FastAPI
 Uvicorn
 pydantic
 pandas
+numpy
+uuid
+openmeteo-requests
+retry-requests
+requests-cache
