@@ -76,14 +76,16 @@ def final_factors(latitude: float, longitude: float) -> EnvironmentalFactors:
     get_current_date = pd.Timestamp.now(temp_df['date'].dt.tz).date()
     temp_row = temp_df[(temp_df['date'].dt.date == get_current_date)]
     # print(temp_row)
-
+    bir_pollen = float(current_pollen_row['Birch Pollen mean'].iloc[0])
+    grass_poll = float(current_pollen_row['Grass Pollen 72H shifted mean'].iloc[0])
+    ragweed_poll = float(current_pollen_row['Ragweed Pollen mean'].iloc[0])
     return EnvironmentalFactors(
         current_PM25_mean = float(current_aq_row['Moving PM2.5 mean'].iloc[0]),
         current_NO2_mean = float(current_aq_row['Moving NO2 mean'].iloc[0]),
         current_O3_mean = float(current_aq_row['Moving O3 mean'].iloc[0]),
-        birch_pollen_72H_mean = float(current_pollen_row['Birch Pollen mean'].iloc[0]),
-        grass_pollen_72H_mean = float(current_pollen_row['Grass Pollen 72H shifted mean'].iloc[0]),
-        ragweed_pollen_72H_mean = float(current_pollen_row['Ragweed Pollen mean'].iloc[0]),
+        birch_pollen_72H_mean = None if pd.isna(bir_pollen) else float(bir_pollen),
+        grass_pollen_72H_mean = None if pd.isna(grass_poll) else float(grass_poll),
+        ragweed_pollen_72H_mean = None if pd.isna(ragweed_poll) else float(ragweed_poll),
         mean_RH_difference = float(current_rh_row['rh_diff'].iloc[0]),
         current_temp_diff = float(temp_row['temp_diff'].iloc[0])
     )

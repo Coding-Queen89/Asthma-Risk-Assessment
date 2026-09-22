@@ -7,15 +7,12 @@ import uuid
 from schemas import PatientInput, RiskFactors, DerivedRisk, PatientState
 from risk_factors import risk_factors
 
-def patient_state(api: PatientInput) -> PatientState:
+def patient_state(api: PatientInput, rf: RiskFactors, dr: DerivedRisk) -> PatientState:
     return PatientState(
         patient_id = uuid.uuid4(),
         patient_input = api,
-        risk_factors = risk_factors(api),
-        exacerbation_risk = DerivedRisk(
-            risk_score = None,
-            risk_category = None
-        )
+        risk_factors = rf,
+        exacerbation_risk = dr
     )
 # print(patient_state(PatientInput))
 # patient_state().model_dump_json()

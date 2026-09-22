@@ -1,0 +1,304 @@
+Factors:
+  - id: current_PM25_mean
+    Label: PM2.5
+    category: Environmental
+    datatype: continuous
+    look_back: 24 hours
+    effect_value: 1.54
+    effect_type: OR
+    exposure_window: 0-3 days
+    evidence: "https://pmc.ncbi.nlm.nih.gov/articles/PMC12057204/"
+    notes: "daily mean"
+    baseline: 15
+    scale: 50
+    unit: "µg/m³"
+
+  - id: current_NO2_mean
+    Label: Nitrogen Dioxide
+    category: Environmental
+    datatype: continuous
+    look_back: 24 hours
+    effect_value: 1.014
+    effect_type: RR
+    exposure_window: 24 hours
+    evidence: "https://www.phfscience.nz/media/uundbpqv/esr-Environmental-health-report-health-effects-short-term-exposure-no2-o3-sp2-asthma.pdf"
+    notes:
+    baseline: 25
+    scale: 10
+    unit: "µg/m³"
+
+  - id: current_O3_mean
+    Label: Ozone
+    category: Environmental
+    datatype: continuous
+    look_back: 24 hours
+    effect_value: 1.008
+    effect_type: RR
+    exposure_window: 8 or 24 hours
+    evidence: "https://www.phfscience.nz/media/uundbpqv/esr-Environmental-health-report-health-effects-short-term-exposure-no2-o3-sp2-asthma.pdf"
+    notes: "Baseline Values of Environmental factors taken from: https://airscan.org/insights/iaq-testing/new-who-air-quality-guidelines-2021/"
+    baseline: 100
+    scale: 10
+    unit: "µg/m³"
+
+  - id: birch_pollen_72H_mean
+    Label: Birch Pollen
+    category: Environmental
+    datatype: continuous
+    look_back: 72 hours
+    effect_value: 1.19
+    effect_type: OR
+    exposure_window: 0-2 days
+    evidence: "https://www.ajmc.com/view/outdoor-pollen-exposure-may-worsen-asthma-attacks"
+    notes: "Limitation: Individuals < 18. Per 0-50 grains/m³ increase (lag 0-2). Effect disappears above 50 grains/m³; capped."
+    baseline: 14
+    scale: 50
+    unit: "grains/m³"
+
+  - id: grass_pollen_72H_mean
+    Label: Grass Pollen
+    category: Environmental
+    datatype: continuous
+    look_back: 72 hours
+    effect_value: 1.46
+    effect_type: IRR
+    exposure_window: 2-5 days
+    evidence: "https://pmc.ncbi.nlm.nih.gov/articles/PMC5643363/"
+    notes: "Assumed equal pollen concentration for trees, grass and weeds"
+    baseline: 4
+    scale: 50
+    unit: "grains/m³"
+
+  - id: ragweed_pollen_72H_mean
+    Label: Ragweed Pollen
+    category: Environmental
+    datatype: continuous
+    look_back: 72 hours
+    effect_value: 1.28
+    effect_type: IRR
+    exposure_window: Within February
+    evidence: "https://www.medpagetoday.com/resource-centers/allergic-asthma-recent-developments/asthma-exacerbations-impact-pollen/4344"
+    notes: "Baseline Values: https://www.webmd.com/allergies/what-to-know-about-pollen-count"
+    baseline: 9
+    scale: 50
+    unit: "grains/m³"
+
+  - id: mean_RH_difference
+    Label: Relative Humidity
+    category: Environmental
+    datatype: continuous
+    look_back: 24 hours
+    effect_value: 1.054
+    effect_type: OR
+    exposure_window: 6 months
+    evidence: "https://www.sciencedirect.com/science/article/pii/S1939455126002772"
+    notes: "Limitation: RH and PM2.5"
+    baseline: 0
+    scale: 1
+    direction: two-sided
+    unit: "%"
+
+  - id: current_temp_diff
+    Label: Diural Temperature Range
+    category: Environmental
+    datatype: continuous
+    look_back: 24 hours
+    effect_value: 1.0249
+    effect_type: OR
+    exposure_window: 1 day
+    evidence: "https://www.sciencedirect.com/science/article/abs/pii/S0048969714014417"
+    notes: "1 degree -> 2.49% increase in emergency."
+    baseline: 0
+    scale:  1
+    direction: two-sided
+    unit: "degree Celsius"
+
+  - id: bmi
+    Label: Body Mass Index
+    category: Baseline
+    datatype: threshold
+    look_back: cumulative
+    effect_value: 1.67
+    effect_type: OR
+    exposure_window: N/A
+    evidence: "https://www.nature.com/articles/s41533-023-00350-x"
+    notes: "As long as BMI is greater than or equal to 30, the risk of asthma exacerbation is increased by 67%."
+    baseline: 30
+    unit: "kg/m²"
+
+  - id: gerd
+    Label: Gastroesophageal Reflux Disease
+    category: Baseline
+    datatype: boolean
+    look_back: cumulative
+    effect_value: 1.27
+    effect_type: OR
+    exposure_window: N/A
+    evidence: "https://pubmed.ncbi.nlm.nih.gov/34448255/"
+    notes:
+    unit: "null"
+
+  - id: osa
+    Label: Obstructive Sleep Apnea
+    category: Baseline
+    datatype: boolean
+    look_back: cumulative
+    effect_value: 14.23
+    effect_type: RR
+    exposure_window: N/A
+    evidence: "https://www.mdpi.com/2077-0383/12/20/6552"
+    notes:
+    unit: "null"
+
+  - id: active_smoking
+    Label: Active Smoking
+    category: Baseline
+    datatype: boolean
+    look_back: cumulative
+    effect_value: 1.71
+    effect_type: RR
+    exposure_window: N/A
+    evidence: "https://www.sciencedirect.com/science/article/pii/S0012369216485478"
+    notes:
+    unit: "null"
+
+  - id: past_exacerbations
+    Label: Past Asthma Exacerbations
+    category: Baseline
+    datatype: threshold
+    look_back: cumulative
+    effect_value: 7.8
+    effect_type: OR
+    exposure_window: 12 Months
+    evidence: "https://www.jaci-inpractice.org/article/S2213-2198(14)00188-3/fulltext"
+    notes: "exacerbation during previous year → future exacerbation."
+    baseline: 1
+    unit: "arbitrary"
+
+  - id: crs
+    Label: Chronic Rhinosinusitis
+    category: Baseline
+    datatype: boolean
+    look_back: cumulative
+    effect_value: 1.87
+    effect_type: RRf
+    exposure_window: 10 years
+    evidence: "https://pubmed.ncbi.nlm.nih.gov/41830158/"
+    notes:
+    unit: "null"
+
+  - id: pef_percent_of_best
+    Label: Percentage of Best Peak Expiratory Flow
+    category: Dynamic
+    datatype: continuous
+    look_back: 48 hours
+    effect_value:
+    effect_type:
+    exposure_window: 2 days
+    evidence: "https://www.urmc.rochester.edu/encyclopedia/content?contenttypeid=85&contentid=p00027"
+    notes: "Ampel lights to be shown independent of other factors."
+    baseline:
+    scale:
+    unit: "%"
+
+  - id: recent_exacerbations
+    Label: Recent Asthma Exacerbations
+    category: Dynamic
+    datatype: boolean
+    look_back: 3 months
+    effect_value: 3.77
+    effect_type: aOR
+    exposure_window: 3 months
+    evidence: "https://pubmed.ncbi.nlm.nih.gov/16914299/"
+    notes:
+    unit: "null"
+
+  - id: smoke_exposure
+    Label: Smoke Exposure
+    category: Dynamic
+    datatype: boolean
+    look_back: 24 hours
+    effect_value: 1.87
+    effect_type: aRR
+    exposure_window: 6 weeks
+    evidence: "https://www.ovid.com/jnls/acpd/fulltext/10.4103/acped.acped_41_25~tobacco-smoke-exposure-as-a-risk-factor-of-asthma"
+    notes: "Study included children less than 12 years old."
+    unit: "null"
+
+  - id: chemical_exposure
+    Label: Irritant/Chemical Exposure
+    category: Dynamic
+    datatype: boolean
+    look_back: 24 hours
+    effect_value: 1.7
+    effect_type: OR
+    exposure_window: 24 Months
+    evidence: "https://pmc.ncbi.nlm.nih.gov/articles/PMC5109668/"
+    notes:
+    unit: "null"
+
+  - id: saba_use
+    Label: SABA Use
+    category: Dynamic
+    datatype: continuous
+    look_back: 7 days
+    effect_value: 1.45
+    effect_type: OR
+    exposure_window: 12 Months
+    evidence: "https://www.resmedjournal.com/article/S0954-6111(17)30277-9/fulltext"
+    notes: "Calculations made on 200 puffs in almost every canister. The risk is split to more than 2 puffs per day."
+    baseline: 1
+    scale: 1
+    unit: "puffs"
+
+Categories:
+  - id: low
+    Label: Low Risk
+    max_score: 2
+    color: "#00ff00"
+    explanation:
+    guidance: "Continue with your regular action plan."
+
+  - id: moderate
+    Label: Moderate Risk
+    max_score: 5
+    color: "#ffff00"
+    explanation:
+    guidance: "This is a sign that your asthma is getting worse. You may need to use quick-relief medicines or other medicine, as directed by your healthcare provider."
+
+  - id: high
+    Label: High Risk
+    max_score: 8
+    color: "#ff0000"
+    explanation: "Whether Conditions, Medication, or Environmental Factors are contributing to worsening Asthma symptoms."
+    guidance: "Please consult your doctor or pharmacist."
+
+  - id: very_high
+    Label: Very High Risk
+    max_score: .inf
+    color: "#ff00ff"
+    explanation: "Your PEF is stable. But your surroundings have contributed to a higher Asthma Attack Risk."
+    guidance: "Consider taking quick-relief medicine and get medical help right away."
+
+PEF_Overrides:
+  - id: excellent_control
+    asthma_state: Asthma under control
+    color: "#00ff00"
+    min_percent: 80
+    override: false
+
+  - id: good_control
+    asthma_state: Asthma moderately under control
+    color: "#ffff00"
+    min_percent: 50
+    override: true
+    target_ind: 1
+    explanation: "Your PEF Percentage was below 80%. This is a sign of worsening Asthma symptoms, regardless of your Asthma Score."
+
+  - id: poor_control
+    asthma_state: Medical emergency
+    color: "#ff0000"
+    min_percent: 0
+    override: true
+    target_ind: 3
+    explanation: "Even if your Asthma Score is low, please consult your doctor or pharmacist with regards to your PEF."

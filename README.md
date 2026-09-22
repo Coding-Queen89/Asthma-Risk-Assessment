@@ -26,7 +26,7 @@ Patients with asthma.
 1. Collect asthma related patient clinical information.
 2. Collect RR, OR, Percentage for every field in relation to asthma exacerbations.
 3. Retrieve environmental data from an external API.
-4. Standardize acquired input into a risk Data Transfer Object.\
+4. Standardize acquired input into a risk Data Transfer Object.
 5. Apply evidence-informed risk rules.
 6. Calculate a risk category.
 7. Display the factors contributing to the result.
@@ -68,3 +68,4 @@ The first version will:
 - personalized risk models
 - Add a relational DB
 - Support FHIR based imports [previously step 5]
+- Contributions to Percentage?

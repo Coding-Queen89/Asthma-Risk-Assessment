@@ -30,3 +30,20 @@ The data flow is currently as follows: api takes artificial data, and passes it 
 Environmental data still need to retrieve the longtitude and latitude from the Frontend.
 
 Risk-factors.py is ready and contains the main data structure for the Risk Engine. Further parsing of data to JSON is in this stage unnecessary.
+
+
+5. Apply evidence-informed risk rules.  AND
+6. Calculate a risk category.
+To calculate the risk score from a set of different risk factors, the catergories were changed to continuous, threshold and boolean. Starting from the baseline given for continuous datatypes either in clinical studies or from WHO standards, the log odds of the effect type was multiplied by the difference between the current value and the baseline value per unit scale. The log odds of the boolean factors directly added to the final risk score, given that the current value is True. Should the factor have a threshold effect, like BMI, the log odds was only added if the current value was above the baseline value.
+
+I am honestly not sure if I should include a pydantic model for the PEF_Overrides and risk categories. For now I added them.
+
+PEF Overrides: The PEF overrides the risk score, if the current PEF is on a more dangerous level than the category given by the risk score. A 0-49 % percentile of the best PEF is a given for a medical emergency, hence overrides the score and outputs the medical emergency category. Likewise, a 50-79 percentile proves to be a moderate risk and should by default output the moderate risk category regardless, whether the score is low or moderate. On the other hand, how can PEF be above 80% with controlled asthma, if the score and especially the SABA_use is high? If it is rather the environmental factors that are contributing to the asthma attack, then that would make sense, for the presence of high risk does not necessarily mean that the patient is in medical emergency, however, SABA_use is another angle.
+
+Both Risk Category and Risk Score will be packed in a Pydantic model: DerivedRisk and passed on to the PatientState model, which contains all relevant data for clinical FHIR transport. Upon export, only this model will be exported.
+
+Step 8 adding contributing results only need to be added to DerivedRisk, so I added it in the corresponding Pydantic model, risk_engine.py and patient_state.py. Should I add the percentage of the contribution?????
+
+Screenshot in docs displays first version of the MVP backend. Input data in one JSON file, Risk Factors calculated, collected and stored in another, and Risk Score and Risk Category computed, calculated and sent over to PatientState. At the end of api_routes the PatientState is dumped to a JSON file.
+
+Limitations: The weight was calculated by ln(OR), ln(RR), ln(aOR), ln(aRR) and ln(IRR) for all datatypes, which is not necessarily accurate. Furthermore, the effect (OR= 1.45) of short-acting Beta-Agonists(SABA) was calculated weekly and not yearly. Primitively, the recognized study declared 2 or more canisters of SABA annually as the cause of a asthma attack with the mentiioned OR. However, in order to properly calculate the short term exacerbation risk, the number of puffs per canister (200) was divided by the weeks in a year (52) to get the weekly average of 8 puffs. The risk was then carried as a continuous factor of 2 or more puffs daily. I still need to add the right explanations for the PEF_Overrides and Risk Categories.
