@@ -1,5 +1,6 @@
 FastAPI
 Uvicorn
+"fastapi[standard]"
 pydantic
 pandas
 numpy
@@ -7,3 +8,4 @@ uuid
 openmeteo-requests
 retry-requests
 requests-cache
+sqlalchemy

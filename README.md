@@ -23,14 +23,16 @@ Patients with asthma.
 
 ## Core Workflow
 
-1. Collect asthma related patient clinical information.
-2. Collect RR, OR, Percentage for every field in relation to asthma exacerbations.
-3. Retrieve environmental data from an external API.
-4. Standardize acquired input into a risk Data Transfer Object.
-5. Apply evidence-informed risk rules.
-6. Calculate a risk category.
-7. Display the factors contributing to the result.
-8. Display predefined risk-management guidance.
+ 1. Collect asthma related patient clinical information. ✔️
+ 2. Collect RR, OR, Percentage for every field in relation to asthma exacerbations. ✔️
+ 3. Retrieve environmental data from an external API. ✔️
+ 4. Standardize acquired input into a risk Data Transfer Object. ✔️
+ 5. Apply evidence-informed risk rules to calculate Derived Risk. ✔️
+ 6. Display the factors contributing to the result, result & Patient Input. ✔️
+ 7. Connect backend to FastAPI and create an SQLite database. ✔️
+ 8. Create a FHIR server and connect it to the FastAPI backend.
+ 9. Build a solid frontend with React.
+10. Deploy the backend and frontend to a server.
 
 ## Initial FHIR Resources
 
@@ -69,3 +71,6 @@ The first version will:
 - Add a relational DB
 - Support FHIR based imports [previously step 5]
 - Contributions to Percentage?
+- Mount Media in DB, FastAPI and Frontend
+- Authentication and Authorization either via JWT or OAuth2
+- Soft delete of paitent records

@@ -47,3 +47,11 @@ Step 8 adding contributing results only need to be added to DerivedRisk, so I ad
 Screenshot in docs displays first version of the MVP backend. Input data in one JSON file, Risk Factors calculated, collected and stored in another, and Risk Score and Risk Category computed, calculated and sent over to PatientState. At the end of api_routes the PatientState is dumped to a JSON file.
 
 Limitations: The weight was calculated by ln(OR), ln(RR), ln(aOR), ln(aRR) and ln(IRR) for all datatypes, which is not necessarily accurate. Furthermore, the effect (OR= 1.45) of short-acting Beta-Agonists(SABA) was calculated weekly and not yearly. Primitively, the recognized study declared 2 or more canisters of SABA annually as the cause of a asthma attack with the mentiioned OR. However, in order to properly calculate the short term exacerbation risk, the number of puffs per canister (200) was divided by the weeks in a year (52) to get the weekly average of 8 puffs. The risk was then carried as a continuous factor of 2 or more puffs daily. I still need to add the right explanations for the PEF_Overrides and Risk Categories.
+
+7. Connect backend to FastAPI and create an SQLite database.
+With two main Methods from FastAPI, I managed to create and understand the connections one needs to make to get and post data to the backend. Before moving on to programming the next needed methods, I had to decide which Database I wanted to use and implement it. The decision fell on SQLite using the SQLAlchemy library, as it thus facilitate the migration to more scalable databases like PostgreSQL in the future.
+
+Deepseek AI suggested to use SQLModel instead of SQLAlchemy, as it is a more modern and has excellent support for pydantic models. However, I decided to stick with SQLAlchemy, since it is the standard when the architectural preference tends to be towards Separation of Concerns.
+Currently weighing the advantages and disadvantages of including every environmental factor in the Assessment database as a separate column VS including them in a single JSON blob.
+
+One of the hardest parts of the project in my opinion was dealing with FastAPI and database connections simultaneously. In the end, I managed to make 8 endpoints that work together to provide, update and delete patient data. These are the basic endpoints and more are expected to be added in the future.

@@ -6,17 +6,22 @@
     and temperature. Raw data is collected from Open Meteo.
 """
 from __future__ import annotations
-
+import os
+import sqlite3
 import pandas as pd
 import openmeteo_requests
 import requests_cache
 from retry_requests import retry
+from pathlib import Path
 
-cache_session = requests_cache.CachedSession('.cache', expire_after = 3600)
+cache_path = Path(__file__).parents[0]
+db_path = os.path.join(cache_path, '.cache.sqlite')
+cache_session = requests_cache.CachedSession(db_path, expire_after = 3600)
 retry_session = retry(cache_session, retries = 5, backoff_factor = 0.2)
 openmeteo = openmeteo_requests.Client(session = retry_session)
 pd.options.display.float_format = '{:.2f}'.format
 
+connection = sqlite3.connect(db_path)
 
 OPEN_METEO_URL_AQ = "https://air-quality-api.open-meteo.com/v1/air-quality"
 OPEN_METEO_URL_WEATHER = "https://api.open-meteo.com/v1/forecast"

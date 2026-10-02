@@ -2,50 +2,240 @@
 Collects all Frontend patient input data over FastAPI and passes it to the corresponding
 backend functions.
 """
-from schemas import PatientInput, DynamicFactors, BaselineFactors, EnvironmentalFactors, RiskFactors
+import uuid
+import json
+from typing import List, Annotated
+from fastapi import Depends, FastAPI, HTTPException
+from schemas import PatientInput, PatientResponse, DynamicFactors, DynamicQuestionnaire, DerivedRisk, RiskFactors, BaselineFactors, UpdatePatient, PatientState
+
 from clinical_dynamic_factors import dynamic_factors
-from clinical_baseline_factors import baseline_factors
+from clinical_baseline_factors import baseline_factors, calculate_bmi
 from environmental_factors.environmental_calculations import final_factors
-from risk_factors import risk_factors
-from patient_state import patient_state
 from risk_engine import risk_engine
+# from risk_factors import risk_factors
+# from patient_state import patient_state
+
+import models
+from database import Base, engine, get_db
+
+from sqlalchemy import select,update
+from sqlalchemy.orm import Session
 
 
-# INPUT VARIABLES FROM FRONTEND
-# TO BE TAKEN FROM GET REQUEST
-def get_patient_profile() -> PatientInput:
-    return PatientInput(
-        age = 30,
-        height_cm = 140.0,
-        weight_kg = 95.0,
-        latitude = 47.498,
-        longitude = 19.040,
+# Base.metadata.drop_all(bind = engine)
+Base.metadata.create_all(bind = engine)
 
-        # Baseline
-        gerd = True,
-        osa = False,
-        active_smoking = True,
-        past_exacerbations = 5,
-        crs = False,
-        best_pef = 120,
 
-        # Dynamic
-        recent_exacerbations = True,
-        current_pef= 47,
-        smoke_exposure = False,
-        chemical_exposure = True,
-        saba_use = "4"
+# INPUT VARIABLES collected from Database
+api = FastAPI()
+
+
+@api.post('/my_profile', response_model=PatientResponse)
+def create_patient_profile(patient_input: PatientInput, db: Annotated[Session, Depends(get_db)]):
+    result = db.execute(
+        select(models.Patient).where(models.Patient.username == patient_input.username)
+    )
+    # GET FIRST PATIENT OBJECT OR NONE IF THERE'S NO MATCH
+    existing_patient = result.scalars().first()
+    if existing_patient:
+        raise HTTPException(status_code=400, detail="Username already exists.")
+
+    new_patient = models.Patient(
+        username = patient_input.username,
+        age = patient_input.age,
+        height_cm = patient_input.height_cm,
+        weight_kg = patient_input.weight_kg,
+        latitude = patient_input.latitude,
+        longitude = patient_input.longitude,
+        best_pef = patient_input.best_pef
     )
 
-if __name__ == "__main__":
-    api = get_patient_profile()
-    risk_factors = risk_factors(api)
-    risk_score = risk_engine(risk_factors)
-    patient_state = patient_state(api, risk_factors, risk_score)
+    db.add(new_patient)
+    db.commit()
+    db.refresh(new_patient)
+    db.flush()
 
-    print(f"\nThe Input Patient Profile is:\n{api}")
-    print(f"\nRisk Factors are:\n{risk_factors}")
-    print(f"\nThe final Risk Score is:\n{risk_score}")
-    # print(f"\nThe final Patient State is:\n{patient_state}")
+    baselineFactors = baseline_factors(patient_input)
+    new_baseline = models.BaselineFactor(**baselineFactors.model_dump(), patient_id = new_patient.id)
 
-    print(f"\n Full Patient State for FHIR transport:\n{patient_state.model_dump_json()}")
+    db.add(new_baseline)
+    db.commit()
+    db.refresh(new_baseline)
+
+    return new_patient
+
+@api.post('/patients/{patient_username}/dynamic_records', response_model=DynamicFactors)
+def create_dynamic_record(patient_username: str, dynamic_questionnaire: DynamicQuestionnaire, db: Annotated[Session, Depends(get_db)]):
+    patient = db.query(models.Patient).filter(models.Patient.username == patient_username).first()
+    if not patient:
+        raise HTTPException(status_code=404, detail="Patient not found.")
+
+    dynamic_record = dynamic_factors(dynamic_questionnaire, patient.best_pef)
+    new_dynamic_record = models.DynamicFactor(**dynamic_record.model_dump(), patient_id = patient.id)
+
+    db.add(new_dynamic_record)
+    db.commit()
+    db.refresh(new_dynamic_record)
+
+    return new_dynamic_record
+
+@api.post('/patients/{patient_username}/assessments', response_model=DerivedRisk)
+def create_assessment(patient_username: str, db: Annotated[Session, Depends(get_db)]):
+    patient = db.query(models.Patient).filter(models.Patient.username == patient_username).first()
+    if not patient:
+        raise HTTPException(status_code=404, detail="Patient not found.")
+
+    # Get the latest environmental factors
+    env = final_factors(patient.latitude, patient.longitude)
+
+    # GET PATIENT'S BASELINE FACTORS
+    baseline_db = patient.baseline_factors
+    if not baseline_db:
+        raise HTTPException(status_code=404, detail="Please, update your baseline first.")
+
+    baseline = BaselineFactors.model_validate(baseline_db)
+
+    # GET PATIENT'S LATEST DYNAMIC FACTORS AND VALIDATE THEM
+    dynamic_query = db.query(models.DynamicFactor).filter(models.DynamicFactor.patient_id == patient.id)
+    last_dynamic_query = dynamic_query.order_by(models.DynamicFactor.recorded_at.desc()).first()
+    if not last_dynamic_query:
+        raise HTTPException(status_code=404, detail="Please, perform a dynamic test first.")
+
+    dynamic = DynamicFactors.model_validate(last_dynamic_query)
+
+    # COLLECT THE FACTORS IN ONE OBJECT
+    risk_factors = RiskFactors(environmental = env, baseline = baseline, dynamic = dynamic)
+
+    # CALCULATE THE DERIVED RISK
+    derived_risk = risk_engine(risk_factors)
+    # CREATE THE PATIENT STATE SNAPSHOT
+    patient_state = PatientState(
+        patient_input = PatientResponse.model_validate(patient),
+        risk_factors = risk_factors,
+        exacerbation_risk = derived_risk
+    )
+
+    assessment = models.Assessment(
+        patient_id = patient.id,
+        dynamic_factors_id = last_dynamic_query.id,
+        baseline_factors_id = baseline_db.id,
+
+        PM25_mean = env.current_PM25_mean,
+        NO2_mean = env.current_NO2_mean,
+        O3_mean = env.current_O3_mean,
+        birch_pollen_72H_mean = env.birch_pollen_72H_mean,
+        grass_pollen_72H_mean = env.grass_pollen_72H_mean,
+        ragweed_pollen_72H_mean = env.ragweed_pollen_72H_mean,
+        mean_RH_difference = env.mean_RH_difference,
+        diurnal_temp_diff = env.current_temp_diff,
+
+        risk_score = derived_risk.risk_score,
+        risk_category = derived_risk.risk_category,
+        patient_state_snapshot = patient_state.model_dump_json()
+    )
+    db.add(assessment)
+    db.commit()
+    db.refresh(assessment)
+
+    return derived_risk
+
+@api.put('/patients/{patient_username}/my_profile', response_model=UpdatePatient)
+def update_patient_profile(patient_username: str, patient_input: PatientInput, db: Annotated[Session, Depends(get_db)]):
+    patient = db.query(models.Patient).filter(models.Patient.username == patient_username).first()
+    if not patient:
+        raise HTTPException(status_code=404, detail="Patient not found.")
+
+    updated_patient_profile = db.execute(
+        update(models.Patient).where(models.Patient.username == patient_username).values(
+            username = patient_input.username,
+            age = patient_input.age,
+            height_cm = patient_input.height_cm,
+            weight_kg = patient_input.weight_kg,
+            latitude = patient_input.latitude,
+            longitude = patient_input.longitude,
+            best_pef = patient_input.best_pef
+        )
+    )
+
+    updated_bmi = calculate_bmi(weight=patient_input.weight_kg, height=patient_input.height_cm)
+    updated_patient_profile = db.execute(
+        update(models.BaselineFactor).where(models.BaselineFactor.patient_id == patient.id).values(
+            bmi = updated_bmi,
+            gerd = patient_input.gerd,
+            osa = patient_input.osa,
+            active_smoking = patient_input.active_smoking,
+            past_exacerbations = patient_input.past_exacerbations,
+            crs = patient_input.crs
+        )
+    )
+
+    db.commit()
+    db.refresh(patient)
+
+    return patient_input
+
+@api.get('/patients/{patient_username}/my_profile', response_model=PatientInput)
+def get_patient_profile(patient_username: str, db: Annotated[Session, Depends(get_db)]):
+    patient = db.query(models.Patient).filter(models.Patient.username == patient_username).first()
+    if not patient:
+        raise HTTPException(status_code=404, detail="Patient not found.")
+    baseline = db.query(models.BaselineFactor).filter(models.BaselineFactor.patient_id == patient.id).first()
+    if not baseline:
+        raise HTTPException(status_code=404, detail="Please update your baseline first.")
+
+    PatientProfile = PatientInput(
+        username = patient.username,
+        age = patient.age,
+        height_cm = patient.height_cm,
+        weight_kg = patient.weight_kg,
+        latitude = patient.latitude,
+        longitude = patient.longitude,
+        best_pef = patient.best_pef,
+        gerd = baseline.gerd,
+        osa = baseline.osa,
+        active_smoking = baseline.active_smoking,
+        past_exacerbations = baseline.past_exacerbations,
+        crs = baseline.crs
+    )
+    return PatientProfile
+
+@api.get('/patients/{patient_username}/assessments')
+def get_assessments(patient_username: str, db: Annotated[Session, Depends(get_db)]):
+    patient = db.query(models.Patient).filter(models.Patient.username == patient_username).first()
+    if not patient:
+        raise HTTPException(status_code=404, detail="Patient not found.")
+
+    assessments = db.query(models.Assessment).filter(models.Assessment.patient_id == patient.id).all()
+
+    assessment_dicts = [{
+        "assessment_id": assessment.assessment_id,
+        "created_at": assessment.created_at,
+        "risk_score": assessment.risk_score,
+        "risk_category": assessment.risk_category,
+    }for assessment in assessments]
+
+    return assessment_dicts
+
+@api.get('/patients/{patient_username}/assessments/{assessment_id}', response_model=PatientState)
+def get_assessment(patient_username: str, assessment_id: int, db: Annotated[Session, Depends(get_db)]):
+    assessment = db.query(models.Assessment).filter(models.Assessment.assessment_id == assessment_id).first()
+    if not assessment:
+        raise HTTPException(status_code=404, detail="Assessment not found.")
+
+    raw_patient_state = json.loads(assessment.patient_state_snapshot)
+    final_patient_state = PatientState(**raw_patient_state)
+
+    return final_patient_state
+
+@api.delete('/patients/{patient_username}')
+def delete_patient(patient_username: str, db: Annotated[Session, Depends(get_db)]):
+    patient = db.query(models.Patient).filter(models.Patient.username == patient_username).first()
+
+    if not patient:
+        raise HTTPException(status_code=404, detail="Patient not found.")
+
+    # THIS IS HARD DELETE. HEALTHCARE PRODUCTION APPS WORK BETTER WITH SOFT DELETE.
+    db.delete(patient)
+    db.commit()
+
+    return {"message": f"The Patient: {patient_username} has been deleted."}

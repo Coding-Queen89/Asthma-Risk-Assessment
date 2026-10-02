@@ -9,7 +9,7 @@ from risk_factors import risk_factors
 
 def patient_state(api: PatientInput, rf: RiskFactors, dr: DerivedRisk) -> PatientState:
     return PatientState(
-        patient_id = uuid.uuid4(),
+        # patient_id = uuid.uuid4(),
         patient_input = api,
         risk_factors = rf,
         exacerbation_risk = dr

@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 from typing import Literal, Optional
-from pydantic import BaseModel, conint, Field
+from pydantic import BaseModel, Field, ConfigDict
 """
 The Schema collects all the data models that are used in the project.
 
@@ -41,6 +41,7 @@ class PEF_Override(BaseModel):
 
 class PatientInput(BaseModel):
     # Profile
+    username: str
     age: int
     height_cm: float
     weight_kg: float
@@ -53,12 +54,34 @@ class PatientInput(BaseModel):
     past_exacerbations: int
     crs: bool
     best_pef: float
-    # Dynamic
+
+class UpdatePatient(PatientInput):
+    pass
+
+class DynamicQuestionnaire(BaseModel):
+     # Dynamic
     recent_exacerbations: bool
     current_pef: float
     smoke_exposure: bool
     chemical_exposure: bool
     saba_use: int
+
+class PatientBase(BaseModel):
+    # Profile
+    username: str = Field(min_length=3, max_length=20)
+    age: int = Field(..., description="Age in years")
+    height_cm: float
+    weight_kg: float
+    latitude: float
+    longitude: float
+    best_pef: float
+
+class CreateProfile(PatientBase):
+    pass
+
+class PatientResponse(PatientBase):
+    model_config = ConfigDict(from_attributes=True)
+    pass
 
 class EnvironmentalFactors(BaseModel):
     current_PM25_mean: float
@@ -71,6 +94,7 @@ class EnvironmentalFactors(BaseModel):
     current_temp_diff: float
 
 class BaselineFactors(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     bmi: float
     gerd: bool
     osa: bool
@@ -78,7 +102,14 @@ class BaselineFactors(BaseModel):
     past_exacerbations: int
     crs: bool
 
+class CreateBaseline(BaselineFactors):
+    username: str
+
+class BaselineResponse(BaselineFactors):
+    pass
+
 class DynamicFactors(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     recent_exacerbations: bool
     pef_percent_of_best: float
     smoke_exposure: bool
@@ -100,8 +131,9 @@ class DerivedRisk(BaseModel):
     risk_guidance: Optional[str] = None
 
 class PatientState(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     patient_id: uuid.UUID = Field(default_factory=uuid.uuid4)
-    patient_input: PatientInput
+    patient_input: PatientBase
     risk_factors: RiskFactors
     exacerbation_risk: DerivedRisk = Field(default_factory = DerivedRisk)
 
