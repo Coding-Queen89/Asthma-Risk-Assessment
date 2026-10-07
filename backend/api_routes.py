@@ -4,7 +4,8 @@ backend functions.
 """
 import uuid
 import json
-from typing import List, Annotated
+import httpx
+from typing import Annotated
 from fastapi import Depends, FastAPI, HTTPException
 from schemas import PatientInput, PatientResponse, DynamicFactors, DynamicQuestionnaire, DerivedRisk, RiskFactors, BaselineFactors, UpdatePatient, PatientState
 
@@ -12,8 +13,6 @@ from clinical_dynamic_factors import dynamic_factors
 from clinical_baseline_factors import baseline_factors, calculate_bmi
 from environmental_factors.environmental_calculations import final_factors
 from risk_engine import risk_engine
-# from risk_factors import risk_factors
-# from patient_state import patient_state
 
 import models
 from database import Base, engine, get_db
@@ -21,12 +20,15 @@ from database import Base, engine, get_db
 from sqlalchemy import select,update
 from sqlalchemy.orm import Session
 
+from fastapi.responses import Response
+from fhir_mapper import export_bundle, export_patient_state_to_fhir, export_patient_diagnosis_to_fhir, export_patient_assessment_to_fhir
 
-# Base.metadata.drop_all(bind = engine)
+
+
 Base.metadata.create_all(bind = engine)
 
 
-# INPUT VARIABLES collected from Database
+
 api = FastAPI()
 
 
@@ -80,7 +82,7 @@ def create_dynamic_record(patient_username: str, dynamic_questionnaire: DynamicQ
     return new_dynamic_record
 
 @api.post('/patients/{patient_username}/assessments', response_model=DerivedRisk)
-def create_assessment(patient_username: str, db: Annotated[Session, Depends(get_db)]):
+def save_assessment(patient_username: str, db: Annotated[Session, Depends(get_db)]):
     patient = db.query(models.Patient).filter(models.Patient.username == patient_username).first()
     if not patient:
         raise HTTPException(status_code=404, detail="Patient not found.")
@@ -217,7 +219,7 @@ def get_assessments(patient_username: str, db: Annotated[Session, Depends(get_db
     return assessment_dicts
 
 @api.get('/patients/{patient_username}/assessments/{assessment_id}', response_model=PatientState)
-def get_assessment(patient_username: str, assessment_id: int, db: Annotated[Session, Depends(get_db)]):
+def get_assessment(patient_username: str, assessment_id: uuid.UUID, db: Annotated[Session, Depends(get_db)]):
     assessment = db.query(models.Assessment).filter(models.Assessment.assessment_id == assessment_id).first()
     if not assessment:
         raise HTTPException(status_code=404, detail="Assessment not found.")
@@ -239,3 +241,53 @@ def delete_patient(patient_username: str, db: Annotated[Session, Depends(get_db)
     db.commit()
 
     return {"message": f"The Patient: {patient_username} has been deleted."}
+
+
+
+
+# POSTING PATIENT INFORMATION TO FHIR SERVER
+HAPI_FHIR_URL = "http://localhost:8080/fhir/"
+
+
+@api.post('/fhir/push/{patient_username}')
+async def export_patient(patient_username: str, db: Annotated[Session, Depends(get_db)]):
+    patient = db.query(models.Patient).filter(models.Patient.username == patient_username).first() # THIS IS HARD DELETE. HEALTHCARE PRODUCTION APPS WORK BETTER WITH SOFT DELETE.
+    if not patient:
+        raise HTTPException(status_code=404, detail="Patient not found.")
+
+    assessment = db.query(models.Assessment).filter(models.Assessment.patient_id == patient.id).order_by(models.Assessment.assessment_id.desc()).first()
+    if not assessment:
+        raise HTTPException(status_code=404, detail="Assessment not found.")
+
+    raw_patient_state = json.loads(assessment.patient_state_snapshot)
+    patient_state = PatientState(**raw_patient_state)
+
+    fhir_patient = export_patient_state_to_fhir(patient_state)
+    fhir_observations = export_patient_diagnosis_to_fhir(patient_state, assessment.created_at, assessment.assessment_id)
+    fhir_assessment = export_patient_assessment_to_fhir(patient_state, assessment.created_at, assessment.assessment_id)
+    bundle = export_bundle(patient_state, assessment.created_at, assessment.assessment_id)
+
+
+    async with httpx.AsyncClient(timeout = 180) as client:
+        bundle_response = await client.post(
+            HAPI_FHIR_URL,
+            content = bundle.model_dump_json(indent=4, exclude_none=True),
+            headers = {
+                "Content-Type": "application/fhir+json",
+                "Accept": "application/fhir+json"
+            }
+        )
+
+        # if patient_response.status_code != 200 or patient_response.text != 201:
+        #     raise HTTPException(status_code=patient_response.status_code, detail=patient_response.text)
+        # if observation_response.status_code != 200 or observation_response.text != 201:
+        #     raise HTTPException(status_code=observation_response.status_code, detail=observation_response.text)
+
+        if bundle_response.status_code != 200 or bundle_response.text != 201:
+            raise HTTPException(status_code=bundle_response.status_code, detail=bundle_response.text)
+
+        return {
+            "status": "Pushed",
+            "status_code": bundle_response.status_code,
+            "message": f"The Patient: {patient_username} has been exported."
+        }

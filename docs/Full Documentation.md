@@ -55,3 +55,23 @@ Deepseek AI suggested to use SQLModel instead of SQLAlchemy, as it is a more mod
 Currently weighing the advantages and disadvantages of including every environmental factor in the Assessment database as a separate column VS including them in a single JSON blob.
 
 One of the hardest parts of the project in my opinion was dealing with FastAPI and database connections simultaneously. In the end, I managed to make 8 endpoints that work together to provide, update and delete patient data. These are the basic endpoints and more are expected to be added in the future.
+
+8. Create a FHIR server and connect it to the FastAPI backend.
+Reading about FHIR  and its specifications from their official site with the help of YouTube and LLMs. I clearly need to split the workflow of this step into 2 parts. Converting the PatientState model to FHIR then exporting it to HAPI FHIR, which is apparently the standard for FHIR. I'll install the dependencies.
+Mapping values from PatientBase to the Pydantic 2 FHIR model needs only a few fields, since most of FHIR fields are optional. Connecting this to the FastAPI backend is straightforward. However, I realized that a lot of code is copied, especially the validation of assessment and patient. Can I make a separate method for that?
+
+Uncertainty: When the patient clicks on Assessment History, the Assessment ID shown is the one of the database, not its chronological order accoring to the Patient. Is this a problem?
+
+A business identifier is a patient's unique identifier in the real world like Nationaal ID or Medical Record Number. This means that it's a vital field when it comes to healthcare.
+
+Created a LOINC account to be able to get to the LOINC codes for Observations as the FHIR specifications recommended. Whilst I got confused at first as to why the System in LOINC classified BMI as "Patient", the explanation was that FHIR uses the class Patient from LOINC to define the BMI as an Observation. Making Observation for every factor, but some will have to be split as Conditions in FHIR, although they do play as factors in the Risk Engine. Past exacerbations is not a documented factor in LOINC and therefore will have to be Code specified. For Conditions, I needed to look up the codes from SNOMED CT.
+Finished Conditions and Observations mapping, but I need to make Observation Method mapping like I did for Conditions. Now I'll download the fhir-validator.jar from HapiFHIR server and validate the exported JSON files before moving on to assessment mapping.
+After correcting 84 validation errors and 54 Warnings, I am moving on to assessment mapping. I will have to map each RiskCategory to a FHIR Condition.
+Deepseek AI claims that one cannot map the RiskScore from this version of the App, since it is not a calibrated probability, rather a calculated log-odds ratio.
+Added RiskAssessment to the Bundle as the last step and I'm now validating the exported JSON files. No errors in the validation.
+
+Limitations: My Medical Emergency category is mapped as certain, although that is not what is meant by the category. I am unsure what to do in this case. I shifted the category ID one level down to avoid colliding with the "certain" category in FHIR. The ID of Low Risk for example is now "negligible" instead of "low", however the Label is unchanged. Consequently, Medical Emergency/Very High Risk is now mapped to "high".
+
+To connect to HAPI FHIR Server, I needed to download docker to initialize their server and be able to send the validated JSON files. The first attempt at sending the bundle seemingly worked, however, I quickly realized that the Bundle was not splitting the fields to Patient, Observations, Conditions and RiskAssessment. This was due to the fact that the Bundle was a collection instead of a transaction bundle. After changing the type and removing the URN:UUIDs of Observation, Condition and RiskAssessment and linking them instead to that of the Patient instead, the bundle was successfully processed by the server. When adding a new RiskAssessment, I wanted to avoid duplicating the patients on the server, while maintaining Patient history. I hence added the ifNoneExist parameter which allowed one Patient to have multiple Observations, Conditions and RiskAssessments.
+
+Problems: Working with a 4GB RAM Laptop for docker was not the easiest task, the server needed a long time to start. According to Gemini, it's my fault that the FHIR server takes so long to start. I need to "-wrap all connections in a try-finally block".

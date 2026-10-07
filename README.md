@@ -30,7 +30,7 @@ Patients with asthma.
  5. Apply evidence-informed risk rules to calculate Derived Risk. ✔️
  6. Display the factors contributing to the result, result & Patient Input. ✔️
  7. Connect backend to FastAPI and create an SQLite database. ✔️
- 8. Create a FHIR server and connect it to the FastAPI backend.
+ 8. Validate JSON file against FHIR Schema and connect to a FHIR server. ✔️
  9. Build a solid frontend with React.
 10. Deploy the backend and frontend to a server.
 
@@ -74,3 +74,6 @@ The first version will:
 - Mount Media in DB, FastAPI and Frontend
 - Authentication and Authorization either via JWT or OAuth2
 - Soft delete of paitent records
+- Adding/requiring professional Patient data (Name, Gender, Telecom)
+- Adding business Identifiers to Patients
+- Split create from save Assessment

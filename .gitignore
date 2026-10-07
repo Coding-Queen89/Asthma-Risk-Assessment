@@ -3,3 +3,5 @@ venv/
 .cache/
 *.pyc
 .env
+database.db
+validator_cli.jar

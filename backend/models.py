@@ -1,7 +1,8 @@
 from __future__ import annotations
 from datetime import datetime,timezone, UTC
-from sqlalchemy import Column, Boolean, Integer, Float, String,DateTime, ForeignKey, JSON
+from sqlalchemy import Column, Boolean, Integer, Float, String,DateTime, ForeignKey, JSON, UUID
 from sqlalchemy.orm import relationship, Mapped, mapped_column
+import uuid
 
 from database import Base
 
@@ -21,26 +22,6 @@ class Patient(Base):
     dynamic_factors = relationship('DynamicFactor', back_populates='patient', cascade = 'all, delete-orphan')
     assessments: Mapped[list[Assessment]] = relationship('Assessment', back_populates='patient', cascade = 'all, delete-orphan')
 
-class DynamicFactor(Base):
-    __tablename__ = 'dynamic_factors'
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index = True)
-    recent_exacerbations: Mapped[bool] = mapped_column(Boolean)
-    pef_percent_of_best: Mapped[float] = mapped_column(Float)
-    smoke_exposure: Mapped[bool] = mapped_column(Boolean)
-    chemical_exposure: Mapped[bool] = mapped_column(Boolean)
-    saba_use: Mapped[int] = mapped_column(Integer)
-
-    patient_id: Mapped[int] = mapped_column(Integer, ForeignKey('patients.id'))
-    recorded_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        default=lambda: datetime.now(UTC)
-    )
-
-    # Relationships
-    patient = relationship('Patient', back_populates='dynamic_factors')
-    assessments = relationship('Assessment', back_populates='dynamic_factors')
-
-
 class BaselineFactor(Base):
     __tablename__ = 'baseline_factors'
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index = True)
@@ -57,10 +38,30 @@ class BaselineFactor(Base):
     patient = relationship('Patient', back_populates='baseline_factors')
     assessments = relationship('Assessment', back_populates='baseline_factors')
 
+class DynamicFactor(Base):
+    __tablename__ = 'dynamic_factors'
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index = True)
+    recent_exacerbations: Mapped[bool] = mapped_column(Boolean)
+    current_pef: Mapped[float] = mapped_column(Float)
+    pef_percent_of_best: Mapped[float] = mapped_column(Float)
+    smoke_exposure: Mapped[bool] = mapped_column(Boolean)
+    chemical_exposure: Mapped[bool] = mapped_column(Boolean)
+    saba_use: Mapped[int] = mapped_column(Integer)
+
+    patient_id: Mapped[int] = mapped_column(Integer, ForeignKey('patients.id'))
+    recorded_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(UTC)
+    )
+
+    # Relationships
+    patient = relationship('Patient', back_populates='dynamic_factors')
+    assessments = relationship('Assessment', back_populates='dynamic_factors')
+
 class Assessment(Base):
     __tablename__ = 'assessments'
-    assessment_id = Column(Integer, primary_key=True)
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    assessment_id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     patient_id = Column(Integer, ForeignKey('patients.id'))
     dynamic_factors_id = Column(Integer, ForeignKey('dynamic_factors.id'))
     baseline_factors_id = Column(Integer, ForeignKey('baseline_factors.id'))

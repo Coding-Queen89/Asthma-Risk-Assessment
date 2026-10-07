@@ -199,3 +199,94 @@ new_assessment = Assessment(
 )
 session.add(new_assessment)
 session.commit()
+
+
+@api.get('/fhir/patients/status/{patient_username}')
+def export_patient_status(patient_username: str, db: Annotated[Session, Depends(get_db)]):
+    patient = db.query(models.Patient).filter(models.Patient.username == patient_username).first()
+    if not patient:
+        raise HTTPException(status_code=404, detail="Patient not found.")
+
+    # FROM ASSESSMENT DATABASE, FILTER ALL ASSESSMENTS ACCORDING TO PATIENT ID
+    # FROM THE FILTERED PATIENT ASSESSMENTS, RETURN THE LATEST ASSESSMENT
+    assessment = db.query(models.Assessment).filter(models.Assessment.patient_id == patient.id).order_by(models.Assessment.assessment_id.desc()).first()
+
+    if not assessment:
+        raise HTTPException(status_code=404, detail="Assessment not found.")
+
+    raw_patient_state = json.loads(assessment.patient_state_snapshot)
+    patient_state = PatientState(**raw_patient_state)
+
+    fhir_patient = export_patient_state_to_fhir(patient_state)
+
+    return Response(
+        content = fhir_patient.model_dump_json(indent=4, exclude_none=True),
+        media_type = "application/fhir+json",
+    )
+
+@api.get('/fhir/patients_observation/{patient_username}')
+def export_patient_observations(patient_username: str, db: Annotated[Session, Depends(get_db)]):
+    patient = db.query(models.Patient).filter(models.Patient.username == patient_username).first()
+    if not patient:
+        raise HTTPException(status_code=404, detail="Patient not found.")
+
+    # FROM ASSESSMENT DATABASE, FILTER ALL ASSESSMENTS ACCORDING TO PATIENT ID
+    # FROM THE FILTERED PATIENT ASSESSMENTS, RETURN THE LATEST ASSESSMENT
+    assessment = db.query(models.Assessment).filter(models.Assessment.patient_id == patient.id).order_by(models.Assessment.assessment_id.desc()).first()
+
+    if not assessment:
+        raise HTTPException(status_code=404, detail="Assessment not found.")
+
+    raw_patient_state = json.loads(assessment.patient_state_snapshot)
+    patient_state = PatientState(**raw_patient_state)
+
+    observations = export_patient_diagnosis_to_fhir(patient_state, assessment.created_at, assessment.assessment_id)
+
+    return JSONResponse(
+        content = [obs.model_dump(mode = "json", exclude_none=True) for obs in observations],
+        media_type = "application/fhir+json",
+    )
+
+@api.get('/fhir/patients_observation/{patient_username}/conditions')
+def export_patient_conditions(patient_username: str, db: Annotated[Session, Depends(get_db)]):
+    patient = db.query(models.Patient).filter(models.Patient.username == patient_username).first()
+    if not patient:
+        raise HTTPException(status_code=404, detail="Patient not found.")
+
+    # FROM ASSESSMENT DATABASE, FILTER ALL ASSESSMENTS ACCORDING TO PATIENT ID
+    # FROM THE FILTERED PATIENT ASSESSMENTS, RETURN THE LATEST ASSESSMENT
+    assessment = db.query(models.Assessment).filter(models.Assessment.patient_id == patient.id).order_by(models.Assessment.assessment_id.desc()).first()
+
+    if not assessment:
+        raise HTTPException(status_code=404, detail="Assessment not found.")
+
+    raw_patient_state = json.loads(assessment.patient_state_snapshot)
+    patient_state = PatientState(**raw_patient_state)
+
+    conditions = export_patient_condition_to_fhir(patient_state, assessment.assessment_id)
+    if not conditions:
+        raise HTTPException(status_code=404, detail=f"No Conditions found.{len(conditions)}")
+    return JSONResponse(
+        content = [cond.model_dump(mode = "json", exclude_none=True) for cond in conditions],
+        media_type = "application/fhir+json",
+    )
+
+@api.get('/{patient_username}/export')
+def get_assessment_risk(patient_username: str, assessment_id: uuid.UUID, db: Annotated[Session, Depends(get_db)]):
+    patient = db.query(models.Patient).filter(models.Patient.username == patient_username).first() # THIS IS HARD DELETE. HEALTHCARE PRODUCTION APPS WORK BETTER WITH SOFT DELETE.
+    if not patient:
+        raise HTTPException(status_code=404, detail="Patient not found.")
+
+    assessment = db.query(models.Assessment).filter(models.Assessment.assessment_id == assessment_id).first()
+    if not assessment:
+        raise HTTPException(status_code=404, detail="Assessment not found.")
+
+    raw_patient_state = json.loads(assessment.patient_state_snapshot)
+    patient_state = PatientState(**raw_patient_state)
+
+    export = export_patient_assessment_to_fhir(patient_state, assessment.created_at, assessment.assessment_id)
+
+    return Response(
+        content = export.model_dump_json(indent=4, exclude_none=True),
+        media_type = "application/fhir+json",
+    )

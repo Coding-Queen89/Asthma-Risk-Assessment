@@ -111,6 +111,7 @@ class BaselineResponse(BaselineFactors):
 class DynamicFactors(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     recent_exacerbations: bool
+    current_pef: float
     pef_percent_of_best: float
     smoke_exposure: bool
     chemical_exposure: bool

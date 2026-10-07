@@ -14,7 +14,7 @@ Factors:
     unit: "µg/m³"
 
   - id: current_NO2_mean
-    Label: Nitrogen Dioxide
+    Label: Ambient Nitrogen Dioxide Concentration
     category: Environmental
     datatype: continuous
     look_back: 24 hours
@@ -28,7 +28,7 @@ Factors:
     unit: "µg/m³"
 
   - id: current_O3_mean
-    Label: Ozone
+    Label: Ambient Ozone Concentration
     category: Environmental
     datatype: continuous
     look_back: 24 hours
@@ -252,28 +252,30 @@ Factors:
     unit: "puffs"
 
 Categories:
-  - id: low
+  # CATEGORY IDS ARE FHIR BASED RISK PROBABILITY SCORES.
+  # CHANGING THE IDS WILL RESULT IN A FHIR VALIDATION ERROR.
+  - id: negligible
     Label: Low Risk
     max_score: 2
     color: "#00ff00"
     explanation:
     guidance: "Continue with your regular action plan."
 
-  - id: moderate
+  - id: low
     Label: Moderate Risk
     max_score: 5
     color: "#ffff00"
     explanation:
     guidance: "This is a sign that your asthma is getting worse. You may need to use quick-relief medicines or other medicine, as directed by your healthcare provider."
 
-  - id: high
+  - id: moderate
     Label: High Risk
     max_score: 8
     color: "#ff0000"
     explanation: "Whether Conditions, Medication, or Environmental Factors are contributing to worsening Asthma symptoms."
     guidance: "Please consult your doctor or pharmacist."
 
-  - id: very_high
+  - id: high
     Label: Very High Risk
     max_score: .inf
     color: "#ff00ff"
