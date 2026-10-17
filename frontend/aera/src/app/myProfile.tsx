@@ -76,7 +76,7 @@ export default function myProfileScreen() {
                         try{
                             await AsyncStorage.removeItem("username");
                             await AsyncStorage.removeItem("nameOfPatient");
-                            router.replace("./login");
+                            router.replace("./index");
                         }catch(error){
                             console.log("Logout failed");
                         }
@@ -102,7 +102,7 @@ export default function myProfileScreen() {
 
                         try{
                             const response = await api.delete(`/patients/${username}`);
-                            router.replace("./login");
+                            router.replace("./index");
                         }catch(error){
                             console.log("Profile could not be deleted");
                         }

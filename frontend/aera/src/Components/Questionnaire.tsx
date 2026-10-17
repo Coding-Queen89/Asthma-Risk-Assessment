@@ -46,7 +46,7 @@ export default function Questionnaire({recentExacerbationsQ, currentPEFQ, smokeE
                 saba_use: parseInt(sabaUse),
             });
             Alert.alert('Success', 'The Test has been added to your diary.');
-            router.push('/');
+            router.push('./home');
             console.log("Success!");
         } catch (error) {
             Alert.alert('Error', 'There was an error submitting the dynamic factors');

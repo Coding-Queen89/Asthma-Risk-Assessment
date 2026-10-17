@@ -80,7 +80,7 @@ export default function OnBoardingScreen() {
                 crs: answers.crs,
                 best_pef: answers.bestPEF,
             });
-            router.replace("./");
+            router.replace("./home");
             console.log("Successfully created the patient profile");
         } catch (error) {
             console.log("There was an error creating the patient profile");

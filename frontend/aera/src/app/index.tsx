@@ -1,65 +1,89 @@
-import { useState, useEffect } from "react";
-import { useRouter } from "expo-router";
-import { Text, ScrollView, View, StyleSheet} from "react-native";
-import { globalStyles } from "../styles/global";
-import Header from "../Components/Header";
-import LastAssessmentHeaderCard from "../Components/lastAssessmentHeaderCard";
-import Button from "../Components/Button";
-import {getUsername,getNameOfPatient} from "../auth/username";
+import { globalStyles, colors } from "@/styles/global";
+import {signInandOutStyle} from "../styles/signInandOutStyles";
+import { Text, View, TextInput, StyleSheet, ScrollView, Alert } from "react-native";
+import { useState } from "react";
 import api from "../api";
+import Button  from "../Components/Button";
+import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
-export default function HomeScreen() {
-  const router = useRouter();
-  const date = new Date().toLocaleDateString(
-    "de-DE",
-    { day: "numeric", month: "long", year: "numeric" }
-  );
+export default function LoginScreen() {
+    const [username, setUsername] = useState<string>("");
+    const [nameOfPatient, setNameOfPatient] = useState<string>("");
 
-  const [username, setUsername] = useState("");
-  const [nameOfPatient, setNameOfPatient] = useState("");
+    const handleSignIn = async () => {
+        const trimmedUsername = username.trim();
+        const trimmedNameOfPatient = nameOfPatient.trim();
 
-  useEffect(() => {
-    const getPatientInfo = async () => {
-      try {
-        const userName = await AsyncStorage.getItem("username");
-        // const nameOfPatient = await AsyncStorage.getItem("nameOfPatient");
-        if (!userName) {
-          throw new Error("No username found.");
+        if (!trimmedUsername) {
+            Alert.alert("Error", "Please enter a username.");
+            return;
         }
-        setUsername(userName);
-        console.log(userName);
 
-        const patientProfile = await api.get(`/patients/${userName}/my_profile`);
-        const data = patientProfile.data;
-        setNameOfPatient(data.name);
-
-      } catch (error) {
-        console.log("There was an error fetching the username");
-      }
+        const response = await api.get(`/patients/${trimmedUsername}/exists`);
+        const data = response.data;
+        await AsyncStorage.setItem("username", trimmedUsername);
+        try {
+            if (data.exists) {
+                const patientProfile = await api.get(`/patients/${trimmedUsername}/my_profile`);
+                const nameOfPatient = patientProfile.data.name;
+                setNameOfPatient(nameOfPatient);
+                console.log(nameOfPatient);
+                Alert.alert(
+                    "Welcome Back",
+                    `It's nice to have you back, ${nameOfPatient}!`,
+                    [{
+                        text: "OK",
+                        style: "cancel",
+                    },],
+                );
+                router.push("./home");
+            } else {
+                Alert.alert(
+                    "Username is Incorrect.",
+                    "Please sign up if you want to create a new account.",
+                    [{
+                        text: "OK",
+                        style: "cancel",
+                    },],
+                );
+            }
+            console.log(`Successfully signed up: ${trimmedUsername}`);
+        } catch (error) {
+            console.log("There was an error signing up");
+        }
     };
-    getPatientInfo();
-  }, []);
 
-  return (
-      <ScrollView style = {globalStyles.screenContainer}>
-          <Header />
-          <Text style = {globalStyles.title}> Hello, {nameOfPatient}! </Text>
-          <Text style = {globalStyles.details}> {date} </Text>
-          <LastAssessmentHeaderCard />
-          <Button
-            label = "Dynamic Questionnaire"
-            onPress = {() => router.push("./dynamicQuestionnaire")}
-          />
-          <Button
-            label = "Know your Risk"
-            onPress = {() => router.push("./riskAssessment")}
-          />
-          <Button
-            label = "View your past Assessments"
-            onPress = {() => router.push("./pastAssessments")}
-          />
-      </ScrollView>
-  );
+
+    return (
+        <ScrollView style={signInandOutStyle.loginScreen} contentContainerStyle={{flexGrow: 1, justifyContent: "center"}}>
+            <Text style={globalStyles.title}>Welcome to AERA</Text>
+            <Text style={[globalStyles.text, { marginTop: 24, marginBottom: 12 }]}>
+                Please enter your username to sign In.
+            </Text>
+            <TextInput
+                style={signInandOutStyle.input}
+                placeholder="Username"
+                placeholderTextColor={colors.muted}
+                value= {username}
+                onChangeText={setUsername}
+                keyboardType="default"
+                autoCapitalize="none"
+                autoCorrect={false}
+            />
+            <View style = {signInandOutStyle.buttonContainer}>
+                <Button
+                    label="Sign In"
+                    onPress={handleSignIn}
+                    style = {{alignSelf: "stretch"}}
+                />
+                <Button
+                    label="Sign Up"
+                    onPress = {() => router.push("./signUp")}
+                    size = "small"
+                />
+            </View>
+        </ScrollView>
+    )
 }
