@@ -1,6 +1,5 @@
 FastAPI
 Uvicorn
-"fastapi[standard]"
 pydantic
 pandas
 numpy
