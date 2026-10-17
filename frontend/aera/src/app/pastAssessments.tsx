@@ -26,7 +26,7 @@ export default function PastAssessmentsScreen() {
                 setUsername(userName);
                 // setNameOfPatient(nameOfPatient ?? "");
 
-                const response = await api.get(`/patients/${userName}/assessments/`);
+                const response = await api.get(`/patients/${userName}/assessments`);
                 setAssessments(response.data);
             } catch (error) {
                 console.log("There was an error loading the assessments");

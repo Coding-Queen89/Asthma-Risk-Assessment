@@ -37,7 +37,7 @@ export default function myAssessmentScreen() {
             // setNameOfPatient(nameOfPatient ?? "");
 
 
-            const response = await api.post(`/patients/${userName}/assessments/`);
+            const response = await api.post(`/patients/${userName}/assessments`);
             setRiskScore(response.data.risk_score);
             setRiskCategory(response.data.risk_category);
             setPefPercentOfBest(response.data.pef_percent_of_best);
