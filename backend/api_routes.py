@@ -7,7 +7,10 @@ import json
 import httpx
 from typing import Annotated
 from fastapi import Depends, FastAPI, HTTPException
-from schemas import PatientInput, PatientResponse, DynamicFactors, DynamicQuestionnaire, DerivedRisk, RiskFactors, BaselineFactors, UpdatePatient, PatientState
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import Response
+
+from schemas import PatientInput, PatientResponse, CreateProfile, DynamicFactors, DynamicQuestionnaire, DerivedRisk, RiskFactors, BaselineFactors, UpdatePatient, PatientState
 
 from clinical_dynamic_factors import dynamic_factors
 from clinical_baseline_factors import baseline_factors, calculate_bmi
@@ -20,20 +23,41 @@ from database import Base, engine, get_db
 from sqlalchemy import select,update
 from sqlalchemy.orm import Session
 
-from fastapi.responses import Response
 from fhir_mapper import export_bundle, export_patient_state_to_fhir, export_patient_diagnosis_to_fhir, export_patient_assessment_to_fhir
 
 
-
+# Base.metadata.
 Base.metadata.create_all(bind = engine)
 
 
 
 api = FastAPI()
 
+# DEFINING CROSS-ORIGIN RESOURCE SERVICE (CORS) FOR FRONTEND BACKEND COMMUNICATION
+
+# origins = ["http://localhost:3000"]
+# FOR THE DEVELOPING PURPOSES, WE ALLOW ALL ORIGINS
+
+api.add_middleware(
+    CORSMiddleware,
+    allow_origins= ["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@api.get('/patients/{username}/exists')
+def get_patient_username(username: str, db: Annotated[Session, Depends(get_db)]):
+    result = db.execute(
+        select(models.Patient).where(models.Patient.username == username)
+    )
+    existing_patient = result.scalars().first()
+
+    # RETURNS A JSON IF EXISTING PATIENT IS FOUND INSTEAD OF STRINGS
+    return {"exists": existing_patient is not None}
 
 @api.post('/my_profile', response_model=PatientResponse)
-def create_patient_profile(patient_input: PatientInput, db: Annotated[Session, Depends(get_db)]):
+def create_patient_profile(patient_input: CreateProfile, db: Annotated[Session, Depends(get_db)]):
     result = db.execute(
         select(models.Patient).where(models.Patient.username == patient_input.username)
     )
@@ -44,6 +68,7 @@ def create_patient_profile(patient_input: PatientInput, db: Annotated[Session, D
 
     new_patient = models.Patient(
         username = patient_input.username,
+        name = patient_input.name,
         age = patient_input.age,
         height_cm = patient_input.height_cm,
         weight_kg = patient_input.weight_kg,
@@ -55,7 +80,6 @@ def create_patient_profile(patient_input: PatientInput, db: Annotated[Session, D
     db.add(new_patient)
     db.commit()
     db.refresh(new_patient)
-    db.flush()
 
     baselineFactors = baseline_factors(patient_input)
     new_baseline = models.BaselineFactor(**baselineFactors.model_dump(), patient_id = new_patient.id)
@@ -142,7 +166,7 @@ def save_assessment(patient_username: str, db: Annotated[Session, Depends(get_db
     return derived_risk
 
 @api.put('/patients/{patient_username}/my_profile', response_model=UpdatePatient)
-def update_patient_profile(patient_username: str, patient_input: PatientInput, db: Annotated[Session, Depends(get_db)]):
+def update_patient_profile(patient_username: str, patient_input: UpdatePatient, db: Annotated[Session, Depends(get_db)]):
     patient = db.query(models.Patient).filter(models.Patient.username == patient_username).first()
     if not patient:
         raise HTTPException(status_code=404, detail="Patient not found.")
@@ -150,6 +174,7 @@ def update_patient_profile(patient_username: str, patient_input: PatientInput, d
     updated_patient_profile = db.execute(
         update(models.Patient).where(models.Patient.username == patient_username).values(
             username = patient_input.username,
+            name = patient_input.name,
             age = patient_input.age,
             height_cm = patient_input.height_cm,
             weight_kg = patient_input.weight_kg,
@@ -187,12 +212,14 @@ def get_patient_profile(patient_username: str, db: Annotated[Session, Depends(ge
 
     PatientProfile = PatientInput(
         username = patient.username,
+        name = patient.name,
         age = patient.age,
         height_cm = patient.height_cm,
         weight_kg = patient.weight_kg,
         latitude = patient.latitude,
         longitude = patient.longitude,
         best_pef = patient.best_pef,
+        bmi = baseline.bmi,
         gerd = baseline.gerd,
         osa = baseline.osa,
         active_smoking = baseline.active_smoking,
@@ -225,6 +252,27 @@ def get_assessment(patient_username: str, assessment_id: uuid.UUID, db: Annotate
         raise HTTPException(status_code=404, detail="Assessment not found.")
 
     raw_patient_state = json.loads(assessment.patient_state_snapshot)
+
+    # JUST FOR DATABASE TESTING AND VISUALIZATION
+
+    patient_input = raw_patient_state["patient_input"]
+
+    if "name" not in patient_input:
+        patient = (
+            db.query(models.Patient)
+            .filter(models.Patient.username == patient_username)
+            .first()
+        )
+
+        if not patient:
+            raise HTTPException(
+                status_code=404,
+                detail="Patient not found."
+            )
+
+        patient_input["name"] = patient.name
+
+
     final_patient_state = PatientState(**raw_patient_state)
 
     return final_patient_state

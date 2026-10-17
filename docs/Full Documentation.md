@@ -75,3 +75,24 @@ Limitations: My Medical Emergency category is mapped as certain, although that i
 To connect to HAPI FHIR Server, I needed to download docker to initialize their server and be able to send the validated JSON files. The first attempt at sending the bundle seemingly worked, however, I quickly realized that the Bundle was not splitting the fields to Patient, Observations, Conditions and RiskAssessment. This was due to the fact that the Bundle was a collection instead of a transaction bundle. After changing the type and removing the URN:UUIDs of Observation, Condition and RiskAssessment and linking them instead to that of the Patient instead, the bundle was successfully processed by the server. When adding a new RiskAssessment, I wanted to avoid duplicating the patients on the server, while maintaining Patient history. I hence added the ifNoneExist parameter which allowed one Patient to have multiple Observations, Conditions and RiskAssessments.
 
 Problems: Working with a 4GB RAM Laptop for docker was not the easiest task, the server needed a long time to start. According to Gemini, it's my fault that the FHIR server takes so long to start. I need to "-wrap all connections in a try-finally block".
+
+9. Build a solid Frontend with ReactNative and connect to the backend.
+Originally planned to use React for a normal WebDev, but then thought of App for Android and iOS for a user friendly profile. ReactNative is a great framework, even though it's particularly new to me.
+My 4GM RAM Laptop cannot support Android Studio, so I'll have to use the Expo CLI and web browser to build the app. I am getting a bit used to React Native. The frontEnd is still a bit challenging, but it's interesting.
+
+Improvements needed: I need a way to make the Risk Score understandable to the user. Maybe changing to it to out of 30, where any value above 10 is considered high risk.
+
+Built the first version of the dynamic questionnaire. Upon research, I found out that it was better to connect the backend at this stage, rather than develop the entire frontend first and then handle connections. This is allegedly good practice and allows for easier debugging.
+
+Connected both FastAPI to Expo over laptop's IP address and all the dynamic record endpoint works.
+
+Improvement needed:
+a. If the current PEF given was greater than the best pef, the best pef in the database will have to take the value of the current pef
+b. The Risk Score should be updated to be more comprehensable to the user.
+c. There's something wrong with the timestamps of the Assessments.
+
+Connected myAssessment Page to the backend, but realized that the PEF percentage of best is missing from derivedRisk which means I'll have to update the backend, in order to add it.
+Conenct and designed History of Assessment Page. UI still needs to be improved.
+Now on to Profile page to be able to link the myProfile endpoint and see the baseline factors, then the Username/Password login and then the Onboarding page.
+While linking the profile details, it was agreed upon that the user should be able to see his/her BMI. It was added in schemas and API route. We need to add a geolocation API to get the city and pass its latitude and longitude to the backend.
+Made a username based login system for the MVP, as this OAuth2 is not currently my focus, during logout however, the user is able to click on the back button on the login screen and be taken back to the index page, which is not the desired behavior.

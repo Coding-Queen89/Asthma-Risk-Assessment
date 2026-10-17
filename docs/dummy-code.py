@@ -290,3 +290,48 @@ def get_assessment_risk(patient_username: str, assessment_id: uuid.UUID, db: Ann
         content = export.model_dump_json(indent=4, exclude_none=True),
         media_type = "application/fhir+json",
     )
+
+
+import { Text, View, StyleSheet } from 'react-native';
+import { colors } from '../styles/global';
+
+export default function LastAssessmentHeaderCard() {
+  const currDate = new Date().toLocaleDateString('de-DE', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+
+  // TODO: aus API holen
+  const category = 'Moderate Risk';
+  const categoryColor = colors.riskModerate;
+  const score = 3.4;
+  const pef = 76;
+
+  return (
+    <View style={styles.card}>
+      {/* Header-Zeile: Titel + Datum */}
+      <View style={styles.headerRow}>
+        <Text style={styles.headerTitle}>Your last assessment</Text>
+        <Text style={styles.headerDate}>{currDate}</Text>
+      </View>
+
+      {/* Hauptzeile: Icon + Kategorie */}
+      <View style={styles.mainRow}>
+        <View style={[styles.iconCircle, { backgroundColor: categoryColor }]}>
+          <Text style={styles.iconText}>!</Text>
+        </View>
+        <View style={styles.mainText}>
+          <Text style={styles.category}>{category}</Text>
+          <Text style={styles.detail}>Prototype risk index: {score}</Text>
+          <Text style={styles.detail}>PEF: {pef}% of personal best</Text>
+        </View>
+      </View>
+
+      {/* Disclaimer */}
+      <Text style={styles.disclaimer}>
+        Based on your last recorded inputs, not a live assessment.
+      </Text>
+    </View>
+  );
+}

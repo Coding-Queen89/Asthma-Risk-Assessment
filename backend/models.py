@@ -10,6 +10,7 @@ class Patient(Base):
     __tablename__ = 'patients'
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index = True)
     username: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
+    name: Mapped[str] = mapped_column(String(50), nullable=False)
     age: Mapped[int] = mapped_column(Integer)
     height_cm: Mapped[float] = mapped_column(Float)
     weight_kg: Mapped[float] = mapped_column(Float)

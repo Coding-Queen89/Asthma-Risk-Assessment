@@ -263,14 +263,14 @@ Categories:
 
   - id: low
     Label: Moderate Risk
-    max_score: 5
+    max_score: 6
     color: "#ffff00"
     explanation:
     guidance: "This is a sign that your asthma is getting worse. You may need to use quick-relief medicines or other medicine, as directed by your healthcare provider."
 
   - id: moderate
     Label: High Risk
-    max_score: 8
+    max_score: 9
     color: "#ff0000"
     explanation: "Whether Conditions, Medication, or Environmental Factors are contributing to worsening Asthma symptoms."
     guidance: "Please consult your doctor or pharmacist."

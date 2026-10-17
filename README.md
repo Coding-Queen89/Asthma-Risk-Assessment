@@ -31,7 +31,7 @@ Patients with asthma.
  6. Display the factors contributing to the result, result & Patient Input. ✔️
  7. Connect backend to FastAPI and create an SQLite database. ✔️
  8. Validate JSON file against FHIR Schema and connect to a FHIR server. ✔️
- 9. Build a solid frontend with React.
+ 9. Build a solid frontend with ReactNative and connect to the backend. ✔️
 10. Deploy the backend and frontend to a server.
 
 ## Initial FHIR Resources

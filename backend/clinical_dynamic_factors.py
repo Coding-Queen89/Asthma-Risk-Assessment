@@ -3,6 +3,9 @@
 from schemas import  DynamicQuestionnaire, DynamicFactors
 
 def calculate_pef(current, best):
+    if current > best:
+        best = current
+        return 100
     if best <= 0:
         raise ValueError("Best PEF must be greater than zero.")
     pef = (current / best) * 100

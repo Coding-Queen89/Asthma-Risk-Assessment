@@ -42,12 +42,14 @@ class PEF_Override(BaseModel):
 class PatientInput(BaseModel):
     # Profile
     username: str
+    name: str = Field(min_length=3, max_length=20)
     age: int
     height_cm: float
     weight_kg: float
     latitude: float
     longitude: float
     # Baseline
+    bmi: Optional[float] = None
     gerd: bool
     osa: bool
     active_smoking: bool
@@ -55,8 +57,22 @@ class PatientInput(BaseModel):
     crs: bool
     best_pef: float
 
-class UpdatePatient(PatientInput):
-    pass
+class UpdatePatient(BaseModel):
+    username: str
+    name: str = Field(min_length=3, max_length=20)
+    age: int
+    height_cm: float
+    weight_kg: float
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+
+    gerd: bool
+    osa: bool
+    active_smoking: bool
+    past_exacerbations: int
+    crs: bool
+    best_pef: float
+
 
 class DynamicQuestionnaire(BaseModel):
      # Dynamic
@@ -69,6 +85,7 @@ class DynamicQuestionnaire(BaseModel):
 class PatientBase(BaseModel):
     # Profile
     username: str = Field(min_length=3, max_length=20)
+    name: str = Field(min_length=3, max_length=20)
     age: int = Field(..., description="Age in years")
     height_cm: float
     weight_kg: float
@@ -76,7 +93,7 @@ class PatientBase(BaseModel):
     longitude: float
     best_pef: float
 
-class CreateProfile(PatientBase):
+class CreateProfile(UpdatePatient):
     pass
 
 class PatientResponse(PatientBase):
@@ -125,6 +142,7 @@ class RiskFactors(BaseModel):
 class DerivedRisk(BaseModel):
     risk_category: Optional[Literal['Low Risk', 'Moderate Risk', 'High Risk', 'Very High Risk']] = None
     risk_score: Optional[float] = None
+    pef_percent_of_best: Optional[float] = None
     asthma_state: Optional[str] = None
     risk_color: Optional[str] = None
     factor_contribution: dict

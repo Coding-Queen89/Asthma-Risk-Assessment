@@ -125,6 +125,7 @@ def risk_engine(rf: RiskFactors) -> DerivedRisk:
     return DerivedRisk(
         risk_category = risk_details["risk_category"],
         risk_score = risk_score["risk_score"],
+        pef_percent_of_best = round(pef_of_best,2),
         asthma_state = risk_details["asthma_state"],
         risk_color = risk_details["risk_color"],
         factor_contribution = risk_score["factor_contribution"],
