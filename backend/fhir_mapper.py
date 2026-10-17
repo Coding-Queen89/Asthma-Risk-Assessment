@@ -15,9 +15,8 @@ from fhir.resources.coding import Coding
 
 from schemas import PatientState, PatientBase, CategoryDetails
 
-parent_dir = Path(__file__).parents[1]
-yaml_path = parent_dir/"docs"/"config.yaml"
-
+curr_dir = Path(__file__).parents[0]
+yaml_path = curr_dir/"config.yaml"
 with open(yaml_path, 'r', encoding='utf-8') as f:
     config = yaml.safe_load(f)
 

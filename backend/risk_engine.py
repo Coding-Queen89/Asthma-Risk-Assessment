@@ -11,8 +11,8 @@ from pathlib import Path
 from risk_factors import risk_factors
 from schemas import FactorDetails, CategoryDetails, PEF_Override, RiskFactors, DerivedRisk
 
-parent_dir = Path(__file__).parents[1]
-yaml_path = parent_dir/"docs"/"config.yaml"
+parent_dir = Path(__file__).parents[0]
+yaml_path = parent_dir/"config.yaml"
 
 with open(yaml_path, 'r', encoding='utf-8') as f:
     config = yaml.safe_load(f)
