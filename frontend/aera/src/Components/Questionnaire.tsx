@@ -1,8 +1,9 @@
 import {router} from "expo-router";
 import { useState } from "react";
-import { Alert, Text, View,ScrollView, StyleSheet, TextInput} from "react-native";
+import { Text, View,ScrollView, StyleSheet, TextInput} from "react-native";
 import {globalStyles, colors} from "../styles/global";
 import Button from "./Button";
+import MessageModal from "./messageModal";
 import api from "../api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -25,9 +26,10 @@ export default function Questionnaire({recentExacerbationsQ, currentPEFQ, smokeE
     const [chemicalExposure, setChemicalExposure] = useState<boolean>(false);
     const [sabaUse, setSabaUse] = useState('');
 
-    // const handleSubmit = () => {
-    //     console.log(recentExacerbations, currentPEF, smokeExposure, chemicalExposure, sabaUse);
-    // };
+    const [modalVisible, setModalVisible] = useState(false);
+    const [modalTitle, setModalTitle] = useState("");
+    const [modalMessage, setModalMessage] = useState("");
+
     const addDynamicFactors = async () => {
         try {
             const userName = await AsyncStorage.getItem("username");
@@ -45,11 +47,17 @@ export default function Questionnaire({recentExacerbationsQ, currentPEFQ, smokeE
                 chemical_exposure: chemicalExposure,
                 saba_use: parseInt(sabaUse),
             });
-            Alert.alert('Success', 'The Test has been added to your diary.');
-            router.push('./home');
+            // Alert.alert('Success', 'The Test has been added to your diary.');
+            // router.push('./home');
+            setModalVisible(true);
+            setModalTitle("Success");
+            setModalMessage("The test has been added to your diary.");
             console.log("Success!");
         } catch (error) {
-            Alert.alert('Error', 'There was an error submitting the dynamic factors');
+            // Alert.alert('Error', 'There was an error submitting the dynamic factors');
+            setModalVisible(true);
+            setModalTitle("Error");
+            setModalMessage("There was an error submitting the dynamic factors. Please try again.");
             console.log("There was an error submitting the dynamic factors");
         }
         console.log(recentExacerbations, currentPEF, smokeExposure, chemicalExposure, sabaUse);
@@ -136,6 +144,19 @@ export default function Questionnaire({recentExacerbationsQ, currentPEFQ, smokeE
             <Button
                 label = "Submit"
                 onPress = {addDynamicFactors}
+            />
+
+            {/* MESSAGEMODAL */}
+            <MessageModal
+                visible = {modalVisible}
+                title = {modalTitle}
+                message = {modalMessage}
+                onClose = {() => {
+                    if (modalTitle === "Success") {
+                        router.push("./home");
+                    }
+                    setModalVisible(false);
+                }}
             />
         </ScrollView>
     );

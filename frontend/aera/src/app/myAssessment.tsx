@@ -1,11 +1,10 @@
-import { globalStyles,colors } from "../styles/global";
-import {useState, useEffect, use} from "react";
-import { Text, ScrollView, Alert} from "react-native";
-import { router } from "expo-router";
-import Button from "../Components/Button";
+import { globalStyles} from "../styles/global";
+import {useState, useEffect} from "react";
+import { ScrollView} from "react-native";
 import Assessment from "../Components/Assessment";
-import api from "../api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import MessageModal from "../Components/messageModal";
+import api from "../api";
 
 
 
@@ -23,6 +22,10 @@ export default function myAssessmentScreen() {
     const [riskExplanation, setRiskExplanation] = useState<string>("");
     const [riskGuidance, setRiskGuidance] = useState<string>("");
     const [hasData, setHasData] = useState<boolean>(false);
+
+    const [modalVisible, setModalVisible] = useState(false);
+    const [modalTitle, setModalTitle] = useState("");
+    const [modalMessage, setModalMessage] = useState("");
 
     const derivedRiskScore = async () => {
         try {
@@ -47,11 +50,10 @@ export default function myAssessmentScreen() {
             setRiskExplanation(response.data.risk_explanation);
             setRiskGuidance(response.data.risk_guidance);
             setHasData(true);
-            console.log(response.data.pef_percent_of_best);
-            // router.push('/myAssessment');
-            // return response;
         } catch (error) {
-            Alert.alert("Error", "Please make sure you have completed the Dynamic Questionnaire.");
+            setModalVisible(true);
+            setModalTitle("Error");
+            setModalMessage("To calculate your risk score, please make update your dynamic questionnaire.");
         }
     };
 
@@ -72,6 +74,17 @@ export default function myAssessmentScreen() {
                 riskExplanation = {riskExplanation}
                 riskGuidance = {riskGuidance}
             />}
+
+            {/* MESSAGEMODAL */}
+            <MessageModal
+                visible = {modalVisible}
+                title = {modalTitle}
+                message = {modalMessage}
+                onClose = {() => {
+                    console.log("There was an error fetching the username")
+                    setModalVisible(false);
+                }}
+            />
         </ScrollView>
     );
 }

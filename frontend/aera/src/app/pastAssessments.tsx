@@ -1,8 +1,8 @@
-import { globalStyles,colors } from "../styles/global";
+import { globalStyles } from "../styles/global";
 import api from "../api";
 import {useState, useEffect} from "react";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Text, ScrollView, View, StyleSheet} from "react-native";
+import { Text, ScrollView, View} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import PastAssessmentCard from "../Components/pastAssessmentCard";
 

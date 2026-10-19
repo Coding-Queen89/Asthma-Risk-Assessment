@@ -1,12 +1,12 @@
 import { globalStyles,colors } from "../styles/global";
 import {useState, useEffect, use} from "react";
 import api from "../api";
-import { Text, ScrollView, View, StyleSheet, Image, Alert} from "react-native";
+import { Text, ScrollView, View, Image} from "react-native";
 import FactorContainer from "../Components/factorContainer";
-import {getUsername,getNameOfPatient} from "../auth/username";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Button from "../Components/Button";
+import MessageModal from "../Components/messageModal";
 import { router } from "expo-router";
 
 export default function myProfileScreen() {
@@ -26,21 +26,20 @@ export default function myProfileScreen() {
 
     const [loading, setLoading] = useState(true);
 
+    const [modalVisible, setModalVisible] = useState(false);
+    const [modalTitle, setModalTitle] = useState("");
+    const [modalMessage, setModalMessage] = useState("");
 
     useEffect(() => {
         const getPatientInfo = async () => {
             try {
                 const userName = await AsyncStorage.getItem("username");
-                // const nameOfPatient = await AsyncStorage.getItem("nameOfPatient");
 
                 if (!userName) {
                     throw new Error("No username found.");
                 }
 
                 setUsername(userName);
-                // setNameOfPatient(nameOfPatient ?? "");
-                console.log("My username is: ", userName);
-                // console.log(nameOfPatient);
 
                 const response = await api.get(`/patients/${userName}/my_profile`);
                 const data = response.data;
@@ -57,7 +56,11 @@ export default function myProfileScreen() {
                 setPastExacerbations(data.past_exacerbations);
                 setCrs(data.crs);
             } catch (error) {
-                console.log("There was an error fetching the username");
+
+                setModalVisible(true);
+                setModalTitle("Error");
+                setModalMessage("There was an error fetching the username. Please try again.");
+
             } finally {
                 setLoading(false);
             }
@@ -65,55 +68,37 @@ export default function myProfileScreen() {
         getPatientInfo();
     }, []);
 
-    const handleLogOut = async () => {
-        Alert.alert(
-            "Logout",
-            `Are you sure you want to logout, ${nameOfPatient}?`,
-            [   {text: "Cancel", style: "cancel",},
-                {
-                    text: "Logout",
-                    onPress: async() =>{
-                        try{
-                            await AsyncStorage.removeItem("username");
-                            await AsyncStorage.removeItem("nameOfPatient");
-                            router.replace("./index");
-                        }catch(error){
-                            console.log("Logout failed");
-                        }
-                            console.log("Logout");
-                        },
-                        style: "destructive",
-                },
-            ],
-        );
+    const handleConfirmModal = async () => {
+        if (modalTitle === "Logout") {
+            try{
+                await AsyncStorage.removeItem("username");
+                await AsyncStorage.removeItem("nameOfPatient");
+                router.replace("./");
+            }
+            catch(error){  console.log("Logout failed"); }
+        }
+        else if(modalTitle === "Delete Profile") {
+            try{
+                const response = await api.delete(`/patients/${username}`);
+                await AsyncStorage.removeItem("username");
+                await AsyncStorage.removeItem("nameOfPatient");
+                router.replace("./");
+            }
+            catch(error){  console.log("Profile could not be deleted"); }
+        }
+        setModalVisible(false);
     }
+
+    const handleLogOut = async () => {
+        setModalVisible(true);
+        setModalTitle("Logout");
+        setModalMessage(`Are you sure you want to logout, ${nameOfPatient}?`);
+    }
+
     const handleDelete = () => {
-        Alert.alert(
-            "Delete Profile",
-            `Are you sure you want to delete your profile, ${nameOfPatient}?`,
-            [
-                {
-                    text: "Cancel",
-                    style: "cancel",
-                },
-                {
-                    text: "Delete",
-                    onPress: async() =>{
-
-                        try{
-                            const response = await api.delete(`/patients/${username}`);
-                            router.replace("./index");
-                        }catch(error){
-                            console.log("Profile could not be deleted");
-                        }
-                        console.log("Delete Profile");
-                    },
-                    style: "destructive",
-                },
-            ],
-        );
-
-        console.log("Delete Profile");
+        setModalVisible(true);
+        setModalTitle("Delete Profile");
+        setModalMessage(`Are you sure you want to delete your profile, ${nameOfPatient}?`);
     };
 
 
@@ -151,6 +136,16 @@ export default function myProfileScreen() {
                 label = "Delete Profile"
                 onPress = {handleDelete}
                 style = {{backgroundColor: colors.muted}}
+            />
+
+            {/* MESSAGEMODAL FOR LOGOUT */}
+            <MessageModal
+                visible = {modalVisible}
+                title = {modalTitle}
+                message = {modalMessage}
+                onClose = {handleConfirmModal}
+                onCancel = {() => setModalVisible(false)}
+                buttonLabel = "Confirm"
             />
         </ScrollView>
     );

@@ -96,3 +96,8 @@ Conenct and designed History of Assessment Page. UI still needs to be improved.
 Now on to Profile page to be able to link the myProfile endpoint and see the baseline factors, then the Username/Password login and then the Onboarding page.
 While linking the profile details, it was agreed upon that the user should be able to see his/her BMI. It was added in schemas and API route. We need to add a geolocation API to get the city and pass its latitude and longitude to the backend.
 Made a username based login system for the MVP, as this OAuth2 is not currently my focus, during logout however, the user is able to click on the back button on the login screen and be taken back to the index page, which is not the desired behavior.
+
+
+Editing:
+Bug 1: Alerts were not visible upon deployment with Vercel.
+Fixing up some bugs found after deployment. Vercel deployment publishes the app as a webapp and does not provide an APK file, which means alerts won't be displayed to users, hence the MessageModals.

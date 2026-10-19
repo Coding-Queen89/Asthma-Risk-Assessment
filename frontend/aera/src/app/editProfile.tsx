@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { globalStyles, colors } from "@/styles/global";
-import { Text, View, TextInput, StyleSheet, ScrollView, Switch, Alert } from "react-native";
+import { Text, View, TextInput, StyleSheet, ScrollView, Switch, ActivityIndicator} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import api from "../api";
 import { router } from "expo-router";
 import Button from "../Components/Button";
+import MessageModal from "../Components/messageModal";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
@@ -31,6 +32,10 @@ export default function EditProfileScreen() {
     const [Crs, setCrs] = useState(false);
 
     const [loading, setLoading] = useState(true);
+
+    const [modalVisible, setModalVisible] = useState(false);
+    const [modalTitle, setModalTitle] = useState("");
+    const [modalMessage, setModalMessage] = useState("");
 
     useEffect(() => {
         const getProfile = async () => {
@@ -60,13 +65,27 @@ export default function EditProfileScreen() {
                 setActiveSmoking(data.active_smoking);
                 setPastExacerbations(data.past_exacerbations.toString());
                 setCrs(data.crs);
+
+                setLoading(false);
             } catch (error:any) {
-                console.log("Failed to load profile");
-                console.error("Details:", JSON.stringify(error.response?.data, null, 2));
+                setModalVisible(true);
+                setModalTitle("Error");
+                setModalMessage("There was an error loading your profile. Please try again.");
+
+                // console.log("Failed to load profile");
+                // console.error("Details:", JSON.stringify(error.response?.data, null, 2));
             }
         };
         getProfile();
     }, []);
+
+    if (loading) {
+        return (
+            <View style = {globalStyles.screenContainer}>
+                <ActivityIndicator size = "large" color = {colors.primary} />
+            </View>
+        );
+    }
 
     const updateProfile = async () => {
         try {
@@ -96,18 +115,16 @@ export default function EditProfileScreen() {
                 crs: Crs,
             });
             console.log("Successfully updated profile");
-            Alert.alert(
-                "Update Profile",
-                "Your profile has been updated successfully.",
-                [
-                    {
-                        text: "OK",
-                        style: "cancel",
-                    },
-                ],
-            );
-            router.push("./myProfile");
+
+            setModalVisible(true);
+            setModalTitle("Success");
+            setModalMessage("Your profile has been updated successfully.");
+
         } catch (error:any) {
+            setModalVisible(true);
+            setModalTitle("Error");
+            setModalMessage("Failed to update your profile. Please try again.");
+
             console.log("Failed to update profile");
             console.error("Details:", JSON.stringify(error.response?.data, null, 2));
         }
@@ -139,6 +156,19 @@ export default function EditProfileScreen() {
             <Button
                 label="Update Profile"
                 onPress={updateProfile}
+            />
+
+            {/* MESSAGEMODAL */}
+            <MessageModal
+                visible = {modalVisible}
+                title = {modalTitle}
+                message = {modalMessage}
+                onClose = {() => {
+                    if (modalTitle === "Success") {
+                        router.push("./myProfile");
+                    }
+                    setModalVisible(false);
+                }}
             />
         </ScrollView>
     );

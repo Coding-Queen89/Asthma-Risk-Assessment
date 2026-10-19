@@ -1,6 +1,6 @@
-import { globalStyles, colors } from "@/styles/global";
-import {useState, useEffect} from "react";
-import { View, ScrollView, StyleSheet } from "react-native";
+import { globalStyles } from "@/styles/global";
+import {useState} from "react";
+import { View, ScrollView} from "react-native";
 import  ProgressBar from "../Components/progressBar";
 import ProfileQuestion from "../Components/profileQuestion";
 import {questionnaireStyles} from "../Components/Questionnaire";

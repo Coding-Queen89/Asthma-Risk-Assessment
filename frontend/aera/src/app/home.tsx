@@ -1,14 +1,13 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "expo-router";
-import { Text, ScrollView, View, StyleSheet} from "react-native";
+import { Text, ScrollView} from "react-native";
 import { globalStyles } from "../styles/global";
 import Header from "../Components/Header";
 import LastAssessmentHeaderCard from "../Components/lastAssessmentHeaderCard";
+import MessageModal from "../Components/messageModal";
 import Button from "../Components/Button";
-import {getUsername,getNameOfPatient} from "../auth/username";
 import api from "../api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -19,6 +18,11 @@ export default function HomeScreen() {
 
   const [username, setUsername] = useState("");
   const [nameOfPatient, setNameOfPatient] = useState("");
+
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalTitle, setModalTitle] = useState("");
+  const [modalMessage, setModalMessage] = useState("");
 
   useEffect(() => {
     const getPatientInfo = async () => {
@@ -36,7 +40,9 @@ export default function HomeScreen() {
         setNameOfPatient(data.name);
 
       } catch (error) {
-        console.log("There was an error fetching the username");
+        setModalVisible(true);
+        setModalTitle("Error");
+        setModalMessage("There was an error fetching the username. Please try again.");
       }
     };
     getPatientInfo();
@@ -59,6 +65,17 @@ export default function HomeScreen() {
           <Button
             label = "View your past Assessments"
             onPress = {() => router.push("./pastAssessments")}
+          />
+
+          {/* MESSAGEMODAL */}
+          <MessageModal
+              visible = {modalVisible}
+              title = {modalTitle}
+              message = {modalMessage}
+              onClose = { () => {
+                console.log("There was an error fetching the username")
+                setModalVisible(false);
+              }}
           />
       </ScrollView>
   );

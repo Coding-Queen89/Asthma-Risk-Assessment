@@ -1,10 +1,9 @@
-import { Text, ScrollView, StyleSheet} from "react-native";
+import { Text, ScrollView} from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {globalStyles} from "../styles/global";
 import Header from "../Components/Header";
 import Questionnaire from "../Components/Questionnaire";
-import api from "../api";
 
 export default function DynamicQuestionnaireScreen() {
     const recentExacerbationsQ = "How many times have you had asthma attacks in the last 3 months?";
