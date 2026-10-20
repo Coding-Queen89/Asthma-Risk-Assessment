@@ -236,6 +236,9 @@ def get_assessments(patient_username: str, db: Annotated[Session, Depends(get_db
 
     assessments = db.query(models.Assessment).filter(models.Assessment.patient_id == patient.id).all()
 
+    if not assessments:
+        return []
+
     assessment_dicts = [{
         "assessment_id": assessment.assessment_id,
         "created_at": assessment.created_at,
@@ -254,7 +257,7 @@ def get_assessment(patient_username: str, assessment_id: uuid.UUID, db: Annotate
     raw_patient_state = json.loads(assessment.patient_state_snapshot)
 
     # JUST FOR DATABASE TESTING AND VISUALIZATION
-
+    # ------------------------------------------------------------
     patient_input = raw_patient_state["patient_input"]
 
     if "name" not in patient_input:
@@ -271,11 +274,26 @@ def get_assessment(patient_username: str, assessment_id: uuid.UUID, db: Annotate
             )
 
         patient_input["name"] = patient.name
-
+    # ------------------------------------------------------------
 
     final_patient_state = PatientState(**raw_patient_state)
 
     return final_patient_state
+
+@api.get('/patients/{patient_username}/latest_assessment')
+def get_latest_assessment(patient_username: str, db: Annotated[Session, Depends(get_db)]):
+    patient = db.query(models.Patient).filter(models.Patient.username == patient_username).first()
+    if not patient:
+        raise HTTPException(status_code=404, detail="Patient not found.")
+
+    assessment = db.query(models.Assessment).filter(models.Assessment.patient_id == patient.id).order_by(models.Assessment.created_at.desc()).first()
+    if not assessment:
+        raise HTTPException(status_code=404, detail="Assessment not found.")
+
+    raw_patient_state = json.loads(assessment.patient_state_snapshot)
+    patient_state = PatientState(**raw_patient_state)
+
+    return patient_state
 
 @api.delete('/patients/{patient_username}')
 def delete_patient(patient_username: str, db: Annotated[Session, Depends(get_db)]):

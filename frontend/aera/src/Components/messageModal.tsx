@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     messageBox: {
         width: "80%",
         maxWidth: 400, // Fix this. It's hardcoded
-        backgroundColor: colors.surface,
+        backgroundColor: colors.cardBackground,
         borderRadius: 16,
         padding: 24,
         alignItems: "center",

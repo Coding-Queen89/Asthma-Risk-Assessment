@@ -4,13 +4,13 @@ import { colors } from "./global";
 export const signInandOutStyle = StyleSheet.create({
   loginScreen: {
     flex: 1,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.mainBackground,
     padding: 16,
     borderRadius: 16,
   },
   input: {
-    backgroundColor: colors.surfaceLight,
-    color: colors.text,
+    backgroundColor: colors.elevatedSurface,
+    color: colors.textPrimary,
     paddingHorizontal: 16,
     paddingVertical: 14,
     borderRadius: 10,

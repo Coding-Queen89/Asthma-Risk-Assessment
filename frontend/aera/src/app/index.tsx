@@ -64,7 +64,7 @@ export default function LoginScreen() {
             <TextInput
                 style={signInandOutStyle.input}
                 placeholder="Username"
-                placeholderTextColor={colors.muted}
+                placeholderTextColor={colors.textSecondary}
                 value= {username}
                 onChangeText={setUsername}
                 keyboardType="default"
@@ -81,6 +81,7 @@ export default function LoginScreen() {
                     label="Sign Up"
                     onPress = {() => router.push("./signUp")}
                     size = "small"
+                    style = {{backgroundColor: null, textDecorationLine: "underline"}}
                 />
             </View>
 

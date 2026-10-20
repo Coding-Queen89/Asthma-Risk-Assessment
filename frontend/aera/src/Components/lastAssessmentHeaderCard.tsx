@@ -1,97 +1,54 @@
 import { Text, View, StyleSheet} from "react-native";
 import { globalStyles, colors } from "../styles/global";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { router } from "expo-router";
+import Button from "./Button";
 
-export default function LastAssessmentHeaderCard() {
-    const username = "John Doe";
-    const riskCategory = "High Risk";
-    const riskColor = "#d73a49";
-    const riskScore = 8.32;
-    const asthmaControl = "Well Controlled";
-    const currDate = new Date().toLocaleDateString(
-        "de-DE",
-        { day: "numeric", month: "short", year: "numeric" }
-    );
+type LastAssessmentHeaderCardProps = {
+    hasAssessments: boolean;
+};
 
-    return (
-        <View style = {styles.cardContainer}>
-            <View style = {styles.header}>
-                <Text style = {styles.headerTitle}> Your Last Assessment </Text>
-                <Text style = {styles.headerDate}> {currDate} </Text>
-            </View>
-            <View style = {styles.mainDetails}>
-                <View style = {[styles.categoryIcon, { backgroundColor: riskColor }]}>
-                    <Text style = {styles.iconText}>!</Text>
+export default function LastAssessmentHeaderCard({hasAssessments}: LastAssessmentHeaderCardProps) {
+
+    if (!hasAssessments) {
+        return (
+            <View style = {[globalStyles.mainContainer, {alignItems: "center"}]}>
+                <View style = {styles.iconCircle}>
+                    <MaterialCommunityIcons name = "clipboard-text-outline" size = {60} color = {colors.white} />
                 </View>
-                <View style = {styles.pastAssessment}>
-                    <Text style = {globalStyles.details}> Category: {riskCategory} </Text>
-                    <Text style = {globalStyles.details}> Score: {riskScore} </Text>
-                    <Text style = {globalStyles.details}> PEF: {asthmaControl} </Text>
-                </View>
+                <Text style = {[globalStyles.subTitle2, styles.emptyTitle]}> No Assessments Found yet </Text>
+                <Text style = {[globalStyles.subTitle, styles.emptySubtitle]}>You haven't completed any asthma risk assessments yet. Start a new assessment to see your results here.</Text>
+                <Button
+                    label = "Take Assessment"
+                    onPress = {() => router.push("./myAssessment")}
+                    style = {{width: "100%"}}
+                />
             </View>
-            <View style = {styles.disclaimer}>
-                <Text style = {[globalStyles.details, styles.italics]}> Disclaimer: This is a demo app and is not a real risk assessment.  </Text>
-            </View>
-        </View>
-    );
+        );
+    }
+
+
 }
 
+
 const styles = StyleSheet.create({
-  cardContainer: {
-    backgroundColor: colors.surface,
-    padding: 20,
-    marginTop: 10,
-    marginBottom: 10,
-    borderRadius: 26,
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+  iconCircle: {
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    backgroundColor: colors.primaryBlue,
     alignItems: "center",
-    marginBottom: 10,
-  },
-  mainDetails: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 15,
-  },
-  categoryIcon: {
     justifyContent: "center",
-    alignItems: "center",
-    marginRight: 20,
-    width: 48,
-    height: 48,
-    borderRadius: 48,
+    marginBottom: 16,
   },
-  pastAssessment: {
-    flex: 1,
-  },
-  disclaimer: {
-    marginBottom: 5,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "white",
+  emptyTitle: {
     textAlign: "center",
+    marginBottom: 8,
+    color: colors.white,
   },
-  headerTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "white",
-    textAlign: "left",
-  },
-  headerDate: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "white",
-    textAlign: "right",
-  },
-  iconText: {
-    fontSize: 24,
-    color: "gold",
-    fontWeight: "bold",
-  },
-  italics: {
-    fontStyle: "italic",
+  emptySubtitle: {
+    textAlign: "center",
+    marginBottom: 8,
+    lineHeight: 20,
   },
 });

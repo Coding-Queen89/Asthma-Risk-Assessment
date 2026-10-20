@@ -31,7 +31,7 @@ export default function Button({label, onPress, size = "large", variant = "secon
 
 const styles = StyleSheet.create({
     buttonContainer: {
-        backgroundColor: colors.secondary,
+        backgroundColor: colors.primaryBackgroundBlue,
         // flex: 1,
         alignItems: "center",
         borderRadius: 48,
@@ -40,10 +40,10 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     variantPrimary: {
-        backgroundColor: colors.primary,
+        backgroundColor: colors.teal, // are these colors right??
     },
     variantMuted: {
-        backgroundColor: colors.muted,
+        backgroundColor: colors.mutedText, // are these colors right??
     },
     small: {
         paddingLeft: 10,
@@ -59,13 +59,13 @@ const styles = StyleSheet.create({
     smallLabel: {
         fontSize: 14,
         fontWeight: "bold",
-        color: colors.label,
+        color: "white",
         textAlign: "center",
     },
     largeLabel: {
         fontSize: 20,
         fontWeight: "bold",
-        color: colors.label,
+        color: "white",
         textAlign: "center",
     },
     pressed: {

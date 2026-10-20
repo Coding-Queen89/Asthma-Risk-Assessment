@@ -1,19 +1,26 @@
 import {StyleSheet, Dimensions} from 'react-native';
 
 export const colors = {
-  background: '#0A0F2C',       // dunkles Marineblau
-  surface: '#1A1F3A',          // Karten-Hintergrund
-  surfaceLight: '#252B4A',     // sekundäre Fläche
-  primary: '#4A90E2',
-  secondary: "#F4f4f4",
-  label: "#0A0F2C",         // Akzent
-  text: '#FFFFFF',             // weißer Text
-  textDark: '#0A0F2C',         // dunkler Text
-  muted: '#A0A8C0',        // gedämpfter Text
-  riskLow: '#22C55E',
-  riskModerate: '#EAB308',
-  riskHigh: '#EF4444',
-  riskVeryHigh: '#A855F7',
+  mainBackground: "#0B122B",
+  cardBackground: "#151F3D",
+  elevatedSurface: "#243052",
+  primaryBlue: "#243052",
+  lightBlue: "#65A8FF",
+  primaryBackgroundBlue: "#3485FF",
+  textPrimary: "#65A8FF",
+  textSecondary: "#A5B4D2",
+  border: "#2B395C",
+  mutedText: "#7183A8",
+  white: "#FFFFFF",
+
+  highRisk: "#EF4444",
+  mediumRisk: "#FBBF24",
+  lowRisk: "#35B978",
+  negligibleRisk: "#00FF00",
+
+  teal: "#42DCA3",
+  purple: "#A855F7",
+  warningSurface: "#493B2B",
 };
 export const fonts = {
   LoraRegular: "Lora-Regular",
@@ -25,8 +32,8 @@ export const fonts = {
 export const globalStyles = StyleSheet.create({
     screenContainer: {
         flex: 1,
-        backgroundColor: colors.background,
-        padding: 10,
+        backgroundColor: colors.mainBackground,
+        padding: 16,
         paddingTop: 50,
         maxWidth: Dimensions.get("window").width,
     },
@@ -35,11 +42,12 @@ export const globalStyles = StyleSheet.create({
         alignItems: "center",
     },
     mainContainer: {
-        backgroundColor: colors.surface,
-        paddingLeft: 10,
-        paddingRight: 10,
-        borderRadius: 26,
-        marginTop: 20,
+        backgroundColor: colors.cardBackground,
+        borderRadius: 16,
+        padding: 14,
+        marginBottom: 24,
+        borderColor: colors.elevatedSurface,
+        borderWidth: 1,
     },
     avatar: {
         width: 78,
@@ -49,34 +57,31 @@ export const globalStyles = StyleSheet.create({
     },
     title: {
         fontSize: 40,
-        fontWeight: "bold",
-        color: colors.text,
+        // fontWeight: "bold",
+        color: colors.white,
         textAlign: "left",
         fontFamily: fonts.LoraBold,
     },
     titleDark: {
-        color: colors.textDark,
+        color: colors.textSecondary,
     },
     subTitle: {
-        fontSize: 30,
-        fontWeight: "bold",
-        color: colors.text,
-        textAlign: "center",
-        margin: 10,
+        fontSize: 16,
+        color: colors.mutedText,
     },
     subTitle2: {
-        fontSize: 25,
+        fontSize: 22,
         fontWeight: "bold",
-        color: colors.text,
+        color: colors.textSecondary,
         textAlign: "left",
     },
     text: {
         fontSize: 18,
-        color: colors.text,
+        color: colors.textPrimary,
     },
     details: {
         fontSize: 14,
-        color: "white",
+        color: colors.mutedText,
         textAlign: "left",
     },
 });
