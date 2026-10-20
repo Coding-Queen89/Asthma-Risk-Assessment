@@ -40,15 +40,15 @@ export default function PastAssessmentsScreen() {
         <ScrollView style = {globalStyles.screenContainer}  contentContainerStyle = {{paddingBottom: insets.bottom + 40}}>
             <Text style = {globalStyles.title}> Past Assessments </Text>
             <View style = {globalStyles.mainContainer}>
-                {assessments.map((a) => (
+                {assessments.map((mappedDetail) => (
                     <PastAssessmentCard
-                        key = {a.assessment_id}
-                        assessmentNumber = {assessments.indexOf(a) + 1}
-                        assessmentId = {a.assessment_id}
-                        createdAt = {a.created_at}
-                        riskCategory = {a.risk_category}
-                        riskScore = {a.risk_score}
-                        onExport = {() => console.log("Export: ", a.assessment_id)}
+                        key = {mappedDetail.assessment_id}
+                        assessmentNumber = {mappedDetail.assessments.indexOf(mappedDetail) + 1}
+                        assessmentId = {mappedDetail.assessment_id}
+                        createdAt = {mappedDetail.created_at}
+                        riskCategory = {mappedDetail.risk_category}
+                        riskScore = {mappedDetail.risk_score}
+                        onExport = {() => console.log("Export: ", mappedDetail.assessment_id)}
                     />
                 ))}
             </View>

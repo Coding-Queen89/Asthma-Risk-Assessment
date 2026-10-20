@@ -5,7 +5,6 @@ import { globalStyles,colors } from "../styles/global";
 import Header from "../Components/Header";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import MessageModal from "../Components/messageModal";
-import Button from "../Components/Button";
 import api from "../api";
 import Greeting from "../Components/Greeting";
 import LastAssessmentHeaderCard from "../Components/LastAssessmentHeaderCard";
@@ -22,7 +21,7 @@ export default function HomeScreen() {
   const [username, setUsername] = useState("");
   const [nameOfPatient, setNameOfPatient] = useState("");
   const [hasAssessments, setHasAssessments] = useState(false);
-
+  const [createdAt, setCreatedAt] = useState("");
 
   const [modalVisible, setModalVisible] = useState(false);
   const [modalTitle, setModalTitle] = useState("");
@@ -47,6 +46,9 @@ export default function HomeScreen() {
         if (assessments.data.length > 0) {
           setHasAssessments(true);
         }
+        else {
+          setCreatedAt(assessments.data.created_at);
+        }
 
       } catch (error) {
         setModalVisible(true);
@@ -69,6 +71,7 @@ export default function HomeScreen() {
           />
           <LastAssessmentHeaderCard
             hasAssessments = {hasAssessments}
+            createdAt = {createdAt}
           />
 
           <IndexGrid

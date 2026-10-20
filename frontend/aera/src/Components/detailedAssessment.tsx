@@ -10,6 +10,7 @@ type DetailedAssessmentProps = {
     createdAt: string;
 };
 
+// FORMATTING CREATEDAT TO FIT THE STANDARD OF UI
 function formatDate(iso: string) {
   const date = new Date(iso);
   return date.toLocaleDateString("de-DE", {
@@ -57,7 +58,7 @@ export default function DetailedAssessment({assessmentId, createdAt}: DetailedAs
     if (loading) {
         return (
             <View>
-                <ActivityIndicator size = "large" color = {colors.text} />
+                <ActivityIndicator size = "large" color = {colors.textSecondary} />
             </View>
         );
     }
@@ -97,8 +98,8 @@ export default function DetailedAssessment({assessmentId, createdAt}: DetailedAs
 
 const styles = StyleSheet.create({
     button: {
-        backgroundColor: colors.background,
+        backgroundColor: colors.mainBackground,
         fontSize: 16,
-        color: colors.text,
+        color: colors.textSecondary,
     },
 });
