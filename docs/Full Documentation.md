@@ -101,3 +101,5 @@ Made a username based login system for the MVP, as this OAuth2 is not currently 
 Editing:
 Bug 1: Alerts were not visible upon deployment with Vercel.
 Fixing up some bugs found after deployment. Vercel deployment publishes the app as a webapp and does not provide an APK file, which means alerts won't be displayed to users, hence the MessageModals.
+
+Edit 2: Designing the home screen and adding a last assessment Endpoint to the backend for better UI/UX.
