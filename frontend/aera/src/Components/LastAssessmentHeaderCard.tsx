@@ -95,15 +95,14 @@ export default function LastAssessmentHeaderCard({hasAssessments, createdAt}: La
                 />
             </View>
 
+            {/* LEFT STATUS BOX */}
+            <View style={[styles.statusBox, { backgroundColor: riskColor }]}>
+                <MaterialCommunityIcons name="alert" size={28} color={colors.warningSurface} />
+                <Text style={[globalStyles.smallCardHeader, {textAlign: "center", color: colors.warningSurface}]}>{riskCategory}</Text>
+                <Text style={styles.asthmaState}>{asthmaState.toUpperCase()}</Text>
+            </View>
             {/* LATEST ASSESSMENT DETAILS */}
             <View style = {styles.latestAssessmentDetails}>
-                {/* LEFT STATUS BOX */}
-                <View style={[styles.statusBox, { backgroundColor: riskColor }]}>
-                    <MaterialCommunityIcons name="alert" size={28} color={colors.warningSurface} />
-                    <Text style={[globalStyles.smallCardHeader, {textAlign: "center", color: colors.warningSurface}]}>{riskCategory}</Text>
-                    <Text style={styles.asthmaState}>{asthmaState.toUpperCase()}</Text>
-                </View>
-
                 {/* MIDDLE RISK SCORE BOX */}
                 <View style={styles.scoreBox}>
                     <Text style={[globalStyles.smallCardHeader, {color: colors.mutedText}]}>Risk Index <Ionicons name="information-circle-outline" size={12} /></Text>
@@ -197,7 +196,8 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     justifyContent: "center",
     alignItems: "center",
-    width: "28%",
+    // width: "100%",
+    // flexWrap: "wrap",
   },
   scoreBox: {
     padding: 8,

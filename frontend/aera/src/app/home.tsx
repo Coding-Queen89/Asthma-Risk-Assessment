@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { useRouter } from "expo-router";
-import { ScrollView, View, Text, StyleSheet} from "react-native";
+import { useState, useEffect, useCallback } from "react";
+import { useRouter, useFocusEffect } from "expo-router";
+import { ScrollView, View, Text} from "react-native";
 import { globalStyles,colors } from "../styles/global";
 import Header from "../Components/Header";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -29,37 +29,40 @@ export default function HomeScreen() {
   const [modalTitle, setModalTitle] = useState("");
   const [modalMessage, setModalMessage] = useState("");
 
-  useEffect(() => {
-    const getPatientInfo = async () => {
-      try {
-        const userName = await AsyncStorage.getItem("username");
-        // const nameOfPatient = await AsyncStorage.getItem("nameOfPatient");
-        if (!userName) {
-          throw new Error("No username found.");
+  useFocusEffect(
+    useCallback(() => {
+      const getPatientInfo = async () => {
+        try {
+          // CALLING USERNAME FROM ASYNC STORAGE
+          const userName = await AsyncStorage.getItem("username");
+          if (!userName) {
+            throw new Error("No username found.");
+          }
+          setUsername(userName);
+
+          // CALLING PATIENT PROFILE FOR PATIENT NAME FROM API
+          const patientProfile = await api.get(`/patients/${userName}/my_profile`);
+          const data = patientProfile.data;
+          setNameOfPatient(data.name);
+
+          // CALLING ASSESSMENTS FROM API TO CHECK IF USER HAS ASSESSMENTS
+          const response = await api.get(`/patients/${userName}/assessments`);
+          setLastAssessment(response.data);
+          if (response.data.length > 0) {
+            setHasAssessments(true);
+          } else{
+            setHasAssessments(false);
+          }
+
+        } catch (error) {
+          setModalVisible(true);
+          setModalTitle("Error");
+          setModalMessage("There was an error fetching the username. Please try again.");
         }
-        setUsername(userName);
-        console.log(userName);
-
-        const patientProfile = await api.get(`/patients/${userName}/my_profile`);
-        const data = patientProfile.data;
-        setNameOfPatient(data.name);
-
-        const response = await api.get(`/patients/${userName}/assessments`);
-        setLastAssessment(response.data);
-        if (response.data.length > 0) {
-          setHasAssessments(true);
-          // console.log(assessments.data.created_at);
-        }
-
-      } catch (error) {
-        setModalVisible(true);
-        setModalTitle("Error");
-        setModalMessage("There was an error fetching the username. Please try again.");
-      }
-    };
-    getPatientInfo();
-  }, []);
-
+      };
+      getPatientInfo();
+    }, [])
+  );
   return (
       <ScrollView style = {globalStyles.screenContainer}>
           <Header
@@ -71,17 +74,13 @@ export default function HomeScreen() {
             nameOfPatient = {nameOfPatient}
           />
 
-            {/* {lastAssessment.length > 0 && ( */}
-              <LastAssessmentHeaderCard
-                // key = {assessment.assessment_id}
-                hasAssessments = {hasAssessments}
-                createdAt = {lastAssessment.length > 0 ? lastAssessment[0].created_at : ""}
-              />
-            {/* )} */}
+            <LastAssessmentHeaderCard
+              hasAssessments = {hasAssessments}
+              createdAt = {lastAssessment.length > 0 ? lastAssessment[0].created_at : ""}
+            />
 
           <IndexGrid
             hasAssessments = {hasAssessments}
-            // createdAt = {lastAssessment.length > 0 ? lastAssessment[0].created_at : ""}
           />
 
           {lastAssessment.length < 1 && (

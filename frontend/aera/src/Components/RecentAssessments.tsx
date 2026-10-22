@@ -1,7 +1,7 @@
 import { globalStyles,colors } from "@/styles/global";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Pressable, View, Text, StyleSheet } from "react-native";
-import {router} from "expo-router";
+import {router, useFocusEffect} from "expo-router";
 import api from "../api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
@@ -21,20 +21,24 @@ function formatDate(iso: string) {
 
 export default function RecentAssessments() {
     const [recentAssessments, setRecentAssessments] = useState<any[]>([]);
-    useEffect(() => {
-        const getAssessment = async () => {
-            try {
-                const userName = await AsyncStorage.getItem("username");
-                const assessment = await api.get(`/patients/${userName}/assessments`);
+    useFocusEffect(
+        useCallback(() => {
+            const getAssessment = async () => {
+                try {
+                    const userName = await AsyncStorage.getItem("username");
+                    const assessment = await api.get(`/patients/${userName}/assessments`);
 
-                setRecentAssessments(assessment.data.slice(0, 3));
-            } catch (error) {
-                console.log("There was an error fetching the assessments");
-                return null;
-            }
-        };
-        getAssessment();
-    }, []);
+                    // REVERSE ARRAY TO GET NEWEST FIRST. FIX THE BACKEND WHEN RAILWAY IS FIXED
+                    const newestFirst = [...assessment.data].reverse();
+                    setRecentAssessments(newestFirst.slice(0, 3));
+                } catch (error) {
+                    console.log("There was an error fetching the assessments");
+                    return null;
+                }
+            };
+            getAssessment();
+        }, [])
+    );
 
     return (
         <View>
