@@ -10,6 +10,7 @@ import Greeting from "../Components/Greeting";
 import LastAssessmentHeaderCard from "../Components/LastAssessmentHeaderCard";
 import IndexGrid from "../Components/indexGrid";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import {styles} from "../Components/LastAssessmentHeaderCard";
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -70,22 +71,25 @@ export default function HomeScreen() {
             nameOfPatient = {nameOfPatient}
           />
 
-            {lastAssessment.length > 0 && (
+            {/* {lastAssessment.length > 0 && ( */}
               <LastAssessmentHeaderCard
                 // key = {assessment.assessment_id}
                 hasAssessments = {hasAssessments}
-                createdAt = {lastAssessment[0].created_at}
+                createdAt = {lastAssessment.length > 0 ? lastAssessment[0].created_at : ""}
               />
-            )}
+            {/* )} */}
 
           <IndexGrid
             hasAssessments = {hasAssessments}
+            // createdAt = {lastAssessment.length > 0 ? lastAssessment[0].created_at : ""}
           />
 
-          <View style = {styles.remark}>
-              <MaterialCommunityIcons name = "information-outline" size = {20} color = {colors.mediumRisk} />
-              <Text style = {[globalStyles.details, styles.remarkText]}> AERA is a demo App meant for educational purposes only and does not replace professional medical advice, diagnosis or treatment. </Text>
-          </View>
+          {lastAssessment.length < 1 && (
+              <View style = {styles.remark}>
+                  <MaterialCommunityIcons name = "information-outline" size = {20} color = {colors.mediumRisk} />
+                  <Text style = {[globalStyles.details, styles.remarkText]}> AERA is a demo App meant for educational purposes only and does not replace professional medical advice, diagnosis or treatment. </Text>
+              </View>
+          )}
 
           {/* MESSAGEMODAL */}
           <MessageModal
@@ -100,24 +104,3 @@ export default function HomeScreen() {
       </ScrollView>
   );
 }
-
-
-const styles = StyleSheet.create({
-  remark: {
-    marginTop: 24,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    backgroundColor: colors.warningSurface,
-    borderRadius: 16,
-    borderColor: colors.mediumRisk,
-    borderWidth: 1,
-    gap: 5,
-    padding: 5,
-  },
-  remarkText: {
-    fontSize: 11,
-    color: colors.mediumRisk,
-    textAlign: "center",
-  },
-});

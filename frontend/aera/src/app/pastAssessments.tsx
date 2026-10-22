@@ -43,7 +43,7 @@ export default function PastAssessmentsScreen() {
                 {assessments.map((mappedDetail) => (
                     <PastAssessmentCard
                         key = {mappedDetail.assessment_id}
-                        assessmentNumber = {mappedDetail.assessments.indexOf(mappedDetail) + 1}
+                        assessmentNumber = {assessments.indexOf(mappedDetail) + 1}
                         assessmentId = {mappedDetail.assessment_id}
                         createdAt = {mappedDetail.created_at}
                         riskCategory = {mappedDetail.risk_category}

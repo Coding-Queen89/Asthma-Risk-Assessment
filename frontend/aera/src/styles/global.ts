@@ -72,7 +72,7 @@ export const globalStyles = StyleSheet.create({
     subTitle2: {
         fontSize: 22,
         fontWeight: "bold",
-        color: colors.textSecondary,
+        color: colors.white,
         textAlign: "left",
     },
     text: {
@@ -91,6 +91,6 @@ export const globalStyles = StyleSheet.create({
     },
     superDetails: {
         fontSize: 12,
-        color: colors.mutedText,
+        color: colors.white,
     },
 });

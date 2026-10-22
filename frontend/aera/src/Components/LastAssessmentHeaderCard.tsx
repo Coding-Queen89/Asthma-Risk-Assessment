@@ -59,7 +59,7 @@ export default function LastAssessmentHeaderCard({hasAssessments, createdAt}: La
                 setLoading(false);
             }
         };
-        getAssessment();
+        getAssessment(); //Calls the method although there are no assessments Error
     }, []);
 
     if (!hasAssessments) {
@@ -91,7 +91,7 @@ export default function LastAssessmentHeaderCard({hasAssessments, createdAt}: La
                     label="View Details >"
                     size="small"
                     onPress={() => router.push("/myAssessment")}
-                    style={{ width: "auto", paddingHorizontal: 9, paddingVertical: 5, marginRight: 0, backgroundColor: colors.elevatedSurface, borderRadius: 40 }}
+                    style={{ width: "auto", paddingHorizontal: 9, paddingVertical: 2, marginRight: 0, backgroundColor: colors.elevatedSurface, borderRadius: 40, borderColor: colors.elevatedSurface, borderWidth: 1}}
                 />
             </View>
 
@@ -99,31 +99,25 @@ export default function LastAssessmentHeaderCard({hasAssessments, createdAt}: La
             <View style = {styles.latestAssessmentDetails}>
                 {/* LEFT STATUS BOX */}
                 <View style={[styles.statusBox, { backgroundColor: riskColor }]}>
-                    <MaterialCommunityIcons name="alert" size={28} color="#FFF" />
-                    <Text style={[globalStyles.smallCardHeader, {textAlign: "center"}]}>{riskCategory}</Text>
+                    <MaterialCommunityIcons name="alert" size={28} color={colors.warningSurface} />
+                    <Text style={[globalStyles.smallCardHeader, {textAlign: "center", color: colors.warningSurface}]}>{riskCategory}</Text>
                     <Text style={styles.asthmaState}>{asthmaState.toUpperCase()}</Text>
                 </View>
 
                 {/* MIDDLE RISK SCORE BOX */}
                 <View style={styles.scoreBox}>
-                    <Text style={[globalStyles.smallCardHeader]}>Risk Index <Ionicons name="information-circle-outline" size={12} /></Text>
-                    <Text style={globalStyles.subTitle2}>{riskScore}</Text>
+                    <Text style={[globalStyles.smallCardHeader, {color: colors.mutedText}]}>Risk Index <Ionicons name="information-circle-outline" size={12} /></Text>
+                    <Text style={[globalStyles.subTitle2, {color: colors.white}]}>{riskScore}</Text>
 
                     {/* Risiko-Skala */}
-                    <View style={styles.scaleContainer}>
-                        <Text style={[globalStyles.smallCardHeader]}>Risk Level  <Ionicons name="information-circle-outline" size={12} /></Text>
-                        <View style={styles.scaleSegments}>
-                            <View style={[styles.scaleSegment, { backgroundColor: colors.riskLow }]} />
-                            <View style={[styles.scaleSegment, { backgroundColor: colors.riskLow }]} />
-                            <View style={[styles.scaleSegment, { backgroundColor: colors.riskModerate }]} />
-                            <View style={[styles.scaleSegment, { backgroundColor: colors.riskHigh }]} />
-                        </View>
+                    <View >
+                        <Text style={[globalStyles.smallCardHeader, {color: colors.mutedText}]}>Risk Level  <Ionicons name="information-circle-outline" size={12} /></Text>
 
                         <View style={styles.scaleLabels}>
-                            <Text style={styles.scaleText}>Negligible</Text>
-                            <Text style={styles.scaleText}>Low</Text>
-                            <Text style={styles.scaleText}>Moderate</Text>
-                            <Text style={[styles.scaleText, riskCategory === "Very High Risk" && {fontWeight: "bold"}]}>High</Text>
+                            <Text style={[styles.scaleText, riskCategory === "Low Risk" && {fontWeight: "bold", color: riskColor}]}>Low </Text>
+                            <Text style={[styles.scaleText, riskCategory === "Moderate Risk" && {fontWeight: "bold", color: riskColor}]}> Moderate </Text>
+                            <Text style={[styles.scaleText, riskCategory === "High Risk" && {fontWeight: "bold", color: riskColor}]}> High </Text>
+                            <Text style={[styles.scaleText, riskCategory === "Very High Risk" && {fontWeight: "bold", color: riskColor}]}> Very High</Text>
                         </View>
                     </View>
                 </View>
@@ -147,12 +141,23 @@ export default function LastAssessmentHeaderCard({hasAssessments, createdAt}: La
                     </View>
                 </View>
             </View>
+
+            <View style = {styles.remark}>
+                <MaterialCommunityIcons name = "information-outline" size = {20} color = {colors.mediumRisk} />
+                <Text style = {[globalStyles.details, styles.remarkText]}> AERA is a research prototypeand does not replace professional medical advice, diagnosis or treatment. </Text>
+            </View>
+
+            <Button
+                label = "Take Assessment"
+                onPress = {() => router.push("./myAssessment")}
+                style = {{width: "100%"}}
+            />
         </View>
     )
 }
 
 
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
   iconCircle: {
     width: 90,
     height: 90,
@@ -205,6 +210,10 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     gap: 16,
+    borderRadius: 16,
+    borderColor: colors.elevatedSurface,
+    borderWidth: 1,
+    padding: 8,
   },
   metricContainer: {
     flex: 1,
@@ -213,13 +222,15 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     justifyContent: "center",
     gap: 7,
-    backgroundColor: colors.primaryBlue,
+    backgroundColor: colors.elevatedSurface,
+    borderRadius: 14,
+    padding: 5,
   },
   asthmaState: {
-    fontSize: 14,
-    color: colors.white,
+    fontSize: 11,
+    color: colors.primaryBlue,
     textAlign: "center",
-    // fontWeight: "bold",
+    fontWeight: "bold",
   },
   scaleLabels: {
     flexDirection: "row",
@@ -235,5 +246,23 @@ metricValue:{
   scaleText: {
     fontSize: 9,
     color: colors.white,
+  },
+
+  remark: {
+    marginTop: 14,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: colors.warningSurface,
+    borderRadius: 16,
+    borderColor: colors.mediumRisk,
+    borderWidth: 1,
+    gap: 5,
+    padding: 5,
+  },
+  remarkText: {
+    fontSize: 11,
+    color: colors.mediumRisk,
+    textAlign: "center",
   },
 });

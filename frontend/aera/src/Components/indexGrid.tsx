@@ -2,12 +2,14 @@ import { Ionicons,MaterialCommunityIcons} from "@expo/vector-icons";
 import { router } from "expo-router";
 import { Text, View, StyleSheet, Pressable} from "react-native";
 import {globalStyles, colors} from "../styles/global";
+import RecentAssessments from "./RecentAssessments"
 
 type IndexGridProps = {
     hasAssessments: boolean;
+    createdAt?: string;
 };
 
-export default function IndexGrid({hasAssessments}: IndexGridProps) {
+export default function IndexGrid({hasAssessments, createdAt}: IndexGridProps) {
     return (
         <View>
             {/* INFORMATIVE SMALL CARDS */}
@@ -32,16 +34,18 @@ export default function IndexGrid({hasAssessments}: IndexGridProps) {
             </View>
             {/* PAST ASSESSMENT LOGS ONLY VISIBLE IF USER HAS ASSESSMENTS */}
             {hasAssessments && (
-                <View>
-
-                </View>
+                <RecentAssessments  />
             )}
-            <View style = {[globalStyles.mainContainer, {marginBottom:8}]}>
+            <View style = {[globalStyles.mainContainer, {marginTop: 12, marginBottom:8}]}>
                 <Pressable onPress = {() => router.push("./pastAssessments")} style = {[globalStyles.rowContainer, styles.smallCard]}>
                     <MaterialCommunityIcons name = "clock-outline" size = {26} color = {colors.lightBlue} />
                     <View style = {styles.cardTitleContainer}>
-                        <Text style={globalStyles.smallCardHeader}>View Past Assessments</Text>
-                        <Text style={globalStyles.details}>If you want to have a closer look at your past assessments, you can view them here. Studying the patterns of an asthma attack helps prevent one. You can also export your assessment as a FHIR bundle.</Text>
+                        <Text style={globalStyles.smallCardHeader}>About AERA</Text>
+                        <Text style={globalStyles.details}>
+                            AERA (Asthma Exacerbation Risk Assessment) combines personal health information with environmental data to provide an evidence-informed assessment of asthma exacerbation risk.
+
+                            By analyzing clinical and environmental risk factors, AERA helps users understand which factors may contribute to a more sever asthma attack.
+                        </Text>
                         <Text style={styles.linkDesign}>Learn More {'>'}</Text>
                     </View>
                 </Pressable>
@@ -61,8 +65,8 @@ const styles = StyleSheet.create({
     smallCard: {
         paddingRight: 8,
         flex: 1,
-        borderWidth: 0,
         alignItems: "flex-start",
+        borderColor: colors.elevatedSurface,
     },
     cardTitleContainer: {
         paddingLeft: 7,

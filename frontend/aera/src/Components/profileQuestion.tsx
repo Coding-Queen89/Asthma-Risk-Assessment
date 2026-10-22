@@ -30,7 +30,7 @@ export default function ProfileQuestion({index, length, field, question,type, an
                             onChangeText={(text) => onChange(field, text)}
                             keyboardType="numeric"
                             placeholder="0"
-                            placeholderTextColor={colors.muted}
+                            placeholderTextColor={colors.mutedText}
                         />
                         {unit && (
                             <Text style={globalStyles.text}>{unit}</Text>
@@ -67,9 +67,9 @@ const styles = StyleSheet.create({
         justifyContent: "center",
     },
     input: {
-        backgroundColor: colors.surfaceLight,
-        borderColor: colors.surfaceLight,
-        color: colors.text,
+        backgroundColor: colors.cardBackground,
+        borderColor: colors.elevatedSurface,
+        color: colors.white,
         height: 48,
         flex: 1,
         borderRadius: 20,
