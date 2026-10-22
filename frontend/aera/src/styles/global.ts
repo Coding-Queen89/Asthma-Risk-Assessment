@@ -79,9 +79,18 @@ export const globalStyles = StyleSheet.create({
         fontSize: 18,
         color: colors.textPrimary,
     },
+    smallCardHeader: {
+        fontSize: 16,
+        fontWeight: "bold",
+        color: colors.white,
+    },
     details: {
         fontSize: 14,
         color: colors.mutedText,
         textAlign: "left",
+    },
+    superDetails: {
+        fontSize: 12,
+        color: colors.mutedText,
     },
 });

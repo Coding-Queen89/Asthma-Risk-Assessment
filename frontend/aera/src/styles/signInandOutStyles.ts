@@ -6,7 +6,7 @@ export const signInandOutStyle = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.mainBackground,
     padding: 16,
-    borderRadius: 16,
+    // borderRadius: 16,
   },
   input: {
     backgroundColor: colors.elevatedSurface,

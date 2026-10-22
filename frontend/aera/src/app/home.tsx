@@ -20,6 +20,7 @@ export default function HomeScreen() {
 
   const [username, setUsername] = useState("");
   const [nameOfPatient, setNameOfPatient] = useState("");
+  const [lastAssessment, setLastAssessment] = useState<any[]>([]);
   const [hasAssessments, setHasAssessments] = useState(false);
   const [createdAt, setCreatedAt] = useState("");
 
@@ -42,12 +43,11 @@ export default function HomeScreen() {
         const data = patientProfile.data;
         setNameOfPatient(data.name);
 
-        const assessments = await api.get(`/patients/${userName}/assessments`);
-        if (assessments.data.length > 0) {
+        const response = await api.get(`/patients/${userName}/assessments`);
+        setLastAssessment(response.data);
+        if (response.data.length > 0) {
           setHasAssessments(true);
-        }
-        else {
-          setCreatedAt(assessments.data.created_at);
+          // console.log(assessments.data.created_at);
         }
 
       } catch (error) {
@@ -69,10 +69,14 @@ export default function HomeScreen() {
           <Greeting
             nameOfPatient = {nameOfPatient}
           />
-          <LastAssessmentHeaderCard
-            hasAssessments = {hasAssessments}
-            createdAt = {createdAt}
-          />
+
+            {lastAssessment.length > 0 && (
+              <LastAssessmentHeaderCard
+                // key = {assessment.assessment_id}
+                hasAssessments = {hasAssessments}
+                createdAt = {lastAssessment[0].created_at}
+              />
+            )}
 
           <IndexGrid
             hasAssessments = {hasAssessments}

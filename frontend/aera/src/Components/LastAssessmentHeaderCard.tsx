@@ -1,6 +1,6 @@
 import { Text, View, StyleSheet} from "react-native";
 import { globalStyles, colors } from "../styles/global";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import Button from "./Button";
 import api from "../api";
@@ -27,12 +27,32 @@ export default function LastAssessmentHeaderCard({hasAssessments, createdAt}: La
     const [assessment, setAssessment] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
+    const [riskCategory, setRiskCategory] = useState("");
+    const [riskScore, setRiskScore] = useState("");
+    const [bestPEF, setBestPEF] = useState("");
+    const [asthmaState, setAsthmaState] = useState("");
+    const [riskColor, setRiskColor] = useState("");
+    const [contributingFactorsNumber, setContributingFactorsNumber] = useState(0);
+
     useEffect(() => {
         const getAssessment = async () => {
             try {
                 const userName = await AsyncStorage.getItem("username");
-                const assessment = await api.get(`/patients/${userName}/assessments`);
+                const assessment = await api.get(`/patients/${userName}/latest_assessment`);
                 setAssessment(assessment.data);
+
+                // SET DATA FOR THE CARD
+                const derivedRiskDetails = assessment.data.exacerbation_risk;
+
+                setRiskCategory(derivedRiskDetails.risk_category);
+                console.log(derivedRiskDetails.risk_category);
+                setRiskScore(derivedRiskDetails.risk_score);
+                setBestPEF(derivedRiskDetails.pef_percent_of_best);
+                setAsthmaState(derivedRiskDetails.asthma_state);
+                setRiskColor(derivedRiskDetails.risk_color);
+                const fieldCounts = Object.keys(derivedRiskDetails.factor_contribution).filter(key => derivedRiskDetails.factor_contribution[key] > 0).length;
+                setContributingFactorsNumber(fieldCounts);
+
             } catch (error) {
                 setAssessment(null);
             } finally {
@@ -61,9 +81,71 @@ export default function LastAssessmentHeaderCard({hasAssessments, createdAt}: La
 
     return (
         <View style = {[globalStyles.mainContainer]}>
-            <View>
-               <Text style = {[globalStyles.subTitle2]}> Your Last Assessment </Text>
-               <Text style = {[globalStyles.subTitle2]}> {formatDate(createdAt)} </Text>
+            {/* CARD HEADER TITLE AND DATE */}
+            <View style = {styles.headerRow}>
+                <View>
+                    <Text style = {[globalStyles.smallCardHeader]}> Your Last Assessment </Text>
+                    <Text style = {[globalStyles.superDetails, {marginTop: 2}]}> {formatDate(createdAt)} </Text>
+                </View>
+                <Button
+                    label="View Details >"
+                    size="small"
+                    onPress={() => router.push("/myAssessment")}
+                    style={{ width: "auto", paddingHorizontal: 9, paddingVertical: 5, marginRight: 0, backgroundColor: colors.elevatedSurface, borderRadius: 40 }}
+                />
+            </View>
+
+            {/* LATEST ASSESSMENT DETAILS */}
+            <View style = {styles.latestAssessmentDetails}>
+                {/* LEFT STATUS BOX */}
+                <View style={[styles.statusBox, { backgroundColor: riskColor }]}>
+                    <MaterialCommunityIcons name="alert" size={28} color="#FFF" />
+                    <Text style={[globalStyles.smallCardHeader, {textAlign: "center"}]}>{riskCategory}</Text>
+                    <Text style={styles.asthmaState}>{asthmaState.toUpperCase()}</Text>
+                </View>
+
+                {/* MIDDLE RISK SCORE BOX */}
+                <View style={styles.scoreBox}>
+                    <Text style={[globalStyles.smallCardHeader]}>Risk Index <Ionicons name="information-circle-outline" size={12} /></Text>
+                    <Text style={globalStyles.subTitle2}>{riskScore}</Text>
+
+                    {/* Risiko-Skala */}
+                    <View style={styles.scaleContainer}>
+                        <Text style={[globalStyles.smallCardHeader]}>Risk Level  <Ionicons name="information-circle-outline" size={12} /></Text>
+                        <View style={styles.scaleSegments}>
+                            <View style={[styles.scaleSegment, { backgroundColor: colors.riskLow }]} />
+                            <View style={[styles.scaleSegment, { backgroundColor: colors.riskLow }]} />
+                            <View style={[styles.scaleSegment, { backgroundColor: colors.riskModerate }]} />
+                            <View style={[styles.scaleSegment, { backgroundColor: colors.riskHigh }]} />
+                        </View>
+
+                        <View style={styles.scaleLabels}>
+                            <Text style={styles.scaleText}>Negligible</Text>
+                            <Text style={styles.scaleText}>Low</Text>
+                            <Text style={styles.scaleText}>Moderate</Text>
+                            <Text style={[styles.scaleText, riskCategory === "Very High Risk" && {fontWeight: "bold"}]}>High</Text>
+                        </View>
+                    </View>
+                </View>
+
+                {/* RIGHT FACTOR DETAILS  */}
+
+                <View style={styles.factorDetails}>
+                    <View style={[globalStyles.rowContainer, styles.factor]}>
+                        <View><MaterialCommunityIcons name="lungs" size={18} color={colors.lightBlue} /></View>
+                        <View style={[globalStyles.rowContainer, styles.metricContainer]}>
+                            <Text style={globalStyles.details}>PEF: </Text>
+                            <Text style={[globalStyles.details, styles.metricValue]}>{bestPEF} %</Text>
+                        </View>
+                    </View>
+                    <View style={[globalStyles.rowContainer, styles.factor]}>
+                        <View ><MaterialCommunityIcons name="leaf" size={18} color={riskColor} /></View>
+                        <View style={[globalStyles.rowContainer, styles.metricContainer]}>
+                            <Text style={[globalStyles.details, {flexWrap: "wrap"}]}>Key Contributors: <Text style={styles.metricValue}>{contributingFactorsNumber} factors</Text></Text>
+
+                        </View>
+                    </View>
+                </View>
             </View>
         </View>
     )
@@ -89,5 +171,69 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 8,
     lineHeight: 20,
+  },
+  headerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  latestAssessmentDetails: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "stretch",
+    marginTop: 8,
+    gap: 8,
+    flex: 1,
+  },
+  statusBox: {
+    padding: 8,
+    borderRadius: 16,
+    borderColor: colors.elevatedSurface,
+    borderWidth: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    width: "28%",
+  },
+  scoreBox: {
+    padding: 8,
+    borderRadius: 16,
+    borderColor: colors.elevatedSurface,
+    borderWidth: 1,
+    flex: 1,
+  },
+  factorDetails: {
+    flex: 1,
+    justifyContent: "center",
+    gap: 16,
+  },
+  metricContainer: {
+    flex: 1,
+  },
+  factor: {
+    alignItems: "flex-start",
+    justifyContent: "center",
+    gap: 7,
+    backgroundColor: colors.primaryBlue,
+  },
+  asthmaState: {
+    fontSize: 14,
+    color: colors.white,
+    textAlign: "center",
+    // fontWeight: "bold",
+  },
+  scaleLabels: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 8,
+    flexWrap: "wrap",
+},
+metricValue:{
+    color: colors.white,
+    fontWeight: "bold",
+    flexWrap: "wrap",
+},
+  scaleText: {
+    fontSize: 9,
+    color: colors.white,
   },
 });
