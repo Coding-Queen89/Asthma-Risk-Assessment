@@ -103,3 +103,5 @@ Bug 1: Alerts were not visible upon deployment with Vercel.
 Fixing up some bugs found after deployment. Vercel deployment publishes the app as a webapp and does not provide an APK file, which means alerts won't be displayed to users, hence the MessageModals.
 
 Edit 2: Designing the home screen and adding a last assessment Endpoint to the backend for better UI/UX.
+
+Edit 3: I needed to upgrade the risk score or at least understand more about how to calculate it. One german study explained that it's better to deal with the RR when the event is not uncommon, whereas the OR would've performed better with Logistic regression models and/or controlled data. In the previous version, I converted all my RRs to ORs, and I am researching more to find out, whether I should keep it this way or convert them to RRs.

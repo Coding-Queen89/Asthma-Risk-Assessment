@@ -170,7 +170,7 @@ Factors:
     effect_value: 7.8
     effect_type: OR
     exposure_window: 12 Months
-    evidence: "https://www.jaci-inpractice.org/article/S2213-2198(14)00188-3/fulltext"
+    evidence: "https://gresp.pt/ficheiros/recursos/estudos/asthma-exacerbation-rates-in-adults-are-unchanged-over-a-5-year-period-despite-high-intensity-therapy.pdf"
     notes: "exacerbation during previous year → future exacerbation."
     baseline: 1
     unit: "arbitrary"
