@@ -264,7 +264,7 @@ Categories:
   - id: low
     Label: Moderate Risk
     max_score: 6
-    color: "##35B978"
+    color: "#35B978"
     explanation:
     guidance: "This is a sign that your asthma is getting worse. You may need to use quick-relief medicines or other medicine, as directed by your healthcare provider."
 
@@ -278,7 +278,7 @@ Categories:
   - id: high
     Label: Very High Risk
     max_score: .inf
-    color: "##EF4444"
+    color: "#EF4444"
     explanation: "Your PEF is stable. But your surroundings have contributed to a higher Asthma Attack Risk."
     guidance: "Consider taking quick-relief medicine and get medical help right away."
 

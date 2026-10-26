@@ -1,6 +1,6 @@
 import { globalStyles} from "../styles/global";
 import {useState, useEffect} from "react";
-import { ScrollView} from "react-native";
+import { ScrollView, Text } from "react-native";
 import Assessment from "../Components/Assessment";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import MessageModal from "../Components/messageModal";
@@ -46,6 +46,7 @@ export default function myAssessmentScreen() {
             setPefPercentOfBest(response.data.pef_percent_of_best);
             setAsthmaState(response.data.asthma_state);
             setRiskColor(response.data.risk_color);
+            console.log("This is the risk color: ", response.data.risk_color);
             setFactorContribution(response.data.factor_contribution);
             setRiskExplanation(response.data.risk_explanation);
             setRiskGuidance(response.data.risk_guidance);
@@ -63,6 +64,7 @@ export default function myAssessmentScreen() {
 
     return (
         <ScrollView style = {globalStyles.screenContainer}>
+            {/* <Text style = {{color: riskColor}}> This is a test. </Text> */}
             {hasData && <Assessment
 
                 riskCategory = {riskCategory}
